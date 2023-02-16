@@ -1,0 +1,1 @@
+runas "/user:inoweruliv@hotmail.com" "jupyter notebook --notebook-dir=D:\Development"

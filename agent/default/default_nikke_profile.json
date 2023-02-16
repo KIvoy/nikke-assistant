@@ -1,0 +1,55 @@
+{
+    "name": "default profile",
+    "desc": "a default template for Nikke helper",
+    "routine": {
+        "1": {
+            "name": "claim_outpost_reward",
+            "display_name": "Claim Outpost Reward",
+            "frequency": "daily",
+            "priority": 1,
+            "auto": true,
+            "setting": {}
+        },
+        "2": {
+            "name": "claim_friend_points",
+            "display_name": "Claim Outpost Reward",
+            "priority": 2,
+            "frequency": "daily",
+            "auto": true,
+            "setting": {}
+        },
+        "3": {
+            "name": "advise_nikke",
+            "display_name": "Advise Nikke",
+            "priority": 3,
+            "frequency": "daily",
+            "auto": true,
+            "setting": {}
+        },
+        "4":{
+            "name":"event",
+            "display_name": "Repeat Event Levels",
+            "priority": 4,
+            "frequency": "daily",
+            "auto":false,
+            "setting":{
+                "level_to_repeat":"1-11"
+            }
+        }, 
+        "5":{
+            "name":"arena_rookie",
+            "display_name": "Rookie Arena",
+            "priority": 5,
+            "frequency": "daily",
+            "auto":true,
+            "setting":{
+                "max_power_gap": 1000
+            }
+        }
+    },
+    "agent_type": "nikke",
+    "setting": {
+        "load_to_memory": true,
+        "active_window": "NIKKE"
+    }
+}
