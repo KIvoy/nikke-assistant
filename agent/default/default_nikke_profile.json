@@ -8,7 +8,7 @@
             "frequency": "daily",
             "priority": 1,
             "auto": true,
-            "setting": {}
+            "settings": {}
         },
         "2": {
             "name": "claim_friend_points",
@@ -16,7 +16,7 @@
             "priority": 2,
             "frequency": "daily",
             "auto": true,
-            "setting": {}
+            "settings": {}
         },
         "3": {
             "name": "advise_nikke",
@@ -24,7 +24,7 @@
             "priority": 3,
             "frequency": "daily",
             "auto": true,
-            "setting": {}
+            "settings": {}
         },
         "4":{
             "name":"event",
@@ -32,7 +32,7 @@
             "priority": 4,
             "frequency": "daily",
             "auto":false,
-            "setting":{
+            "settings":{
                 "level_to_repeat":"1-11"
             }
         }, 
@@ -42,13 +42,13 @@
             "priority": 5,
             "frequency": "daily",
             "auto":true,
-            "setting":{
+            "settings":{
                 "max_power_gap": 1000
             }
         }
     },
     "agent_type": "nikke",
-    "setting": {
+    "settings": {
         "load_to_memory": true,
         "active_window": "NIKKE"
     }

@@ -1,20 +1,12 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 from tkinter import*
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
-import random
 import time
-from nikke import *
+from nikke_agent import Agent, gio
 import os
 import json
-import sys
 from threading import *
 
 
@@ -165,7 +157,7 @@ def advise_nikke():
         current_agent.advise_nikke()
         current_status.set('Stopped advising Nikkes.')
 
-def arena_rookie():
+def rookie_arena():
     global current_agent
     if not current_agent:
         showinfo(
@@ -175,7 +167,7 @@ def arena_rookie():
     else:
         current_status.set('Battling rookie arena...\npress DEL to stop')
         root.update()
-        current_agent.arena_rookie()
+        current_agent.rookie_arena()
         current_status.set('Stopped battling rookie arena.')
 
 
@@ -197,8 +189,8 @@ def select_game_window():
         apps = gio.get_available_applications()
     
         variable = StringVar(top)
-        if current_agent.setting.get('active_window') in apps:
-            variable.set(current_agent.setting.get('active_window')) 
+        if current_agent.settings.get('active_window') in apps:
+            variable.set(current_agent.settings.get('active_window')) 
         else:
             variable.set(apps[0]) # default value
         w = OptionMenu(top, variable, *apps)
@@ -277,7 +269,7 @@ btnLoadSkill.grid(row=7, column=1)
 btnInfChaos=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="Advise Nikke", bg="powder blue",command=advise_nikke)
 btnInfChaos.grid(row=7, column=2)
 
-btnx1=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="Rookie arena", bg="powder blue",command=arena_rookie)
+btnx1=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="Rookie arena", bg="powder blue",command=rookie_arena)
 btnx1.grid(row=7, column=3)
 
 
