@@ -1,0 +1,26 @@
+{
+    "default":{
+        "rookie_arena":{
+            "var":{
+                "ENEMY_RANK_H_STRETCH" : 40,
+                "ENEMY_RANK_V_STRETCH" : 5,
+                "ENEMY_RANK_H_TRANS" : 0,
+                "ENEMY_RANK_V_TRANS" : 6,
+                "ENEMY_POWER_H_STRETCH" : 40,
+                "ENEMY_POWER_V_STRETCH" : 5,
+                "ENEMY_POWER_H_TRANS" : 0,
+                "ENEMY_POWER_V_TRANS" : 5,
+                "SELF_RANK_H_STRETCH" : 40,
+                "SELF_RANK_V_STRETCH" : 5,
+                "SELF_RANK_H_TRANS" : 10,
+                "SELF_RANK_V_TRANS" : 6,
+                "SELF_POWER_H_STRETCH" : 40,
+                "SELF_POWER_V_STRETCH" : 5,
+                "SELF_POWER_H_TRANS" : 0,
+                "SELF_POWER_V_TRANS" : 0 
+            },
+            "fix":{
+            }
+        }
+    }
+}
