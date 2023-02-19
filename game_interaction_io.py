@@ -39,7 +39,7 @@ class GameInteractionIO:
             app_list = GameInteractionIO.get_available_applications(
                 verbose=True)
         else:
-            app_list = gw.getWindowsAt(*gio.get_image_center(app_loc))
+            app_list = gw.getWindowsAt(*GameInteractionIO.get_image_center(app_loc))
         app = [app for app in app_list if app.title == app_name][0]
         if app:
             app.activate()
