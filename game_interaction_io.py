@@ -11,6 +11,7 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd=r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 import re
 from location_box import LocationBox
+import pygetwindow as gw
 
 class GameInteractionIO:
     bounce_key_delay = 0.07
@@ -30,6 +31,20 @@ class GameInteractionIO:
         return post_action
     
     post_action = post_action_generator(post_action_delay)
+    
+    def switch_active_application(app_name, app_loc=None):
+        app_list = [""]
+        if not app_loc:
+            app_list = GameInteractionIO.get_available_applications(verbose=True)
+        else:
+            app_list = gw.getWindowsAt(*gio.get_image_center(app_loc))
+        app = [app for app in app_list if app.title == app_name][0]
+        if app:
+            app.activate()
+        else:
+            return False
+        return True
+    
     
     def get_available_applications(verbose=False):
         app_list = [app for app in pyautogui.getAllWindows() if app.title!=""]
@@ -392,7 +407,8 @@ class GameInteractionIO:
         image_coord = GameInteractionIO.get_image_center(image_location)
         if region_location is not None:
             image_coord += region_location.coord()
-        pyautogui.click(*image_coord, clicks=1, interval=1, button=button)
+        if button:
+            pyautogui.click(*image_coord, clicks=1, interval=1, button=button)
         return True
 
 

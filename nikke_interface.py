@@ -170,6 +170,32 @@ def rookie_arena():
         current_agent.rookie_arena()
         current_status.set('Stopped battling rookie arena.')
 
+def normal_shop():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title='Error',
+            message='No active agent found'
+        )
+    else:
+        current_status.set('Shopping in normal shop...\npress DEL to stop')
+        root.update()
+        current_agent.normal_shop()
+        current_status.set('Stopped shopping in normal shop.')
+
+def claim_nikke_rehab_reward():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title='Error',
+            message='No active agent found'
+        )
+    else:
+        current_status.set('Claiming Nikke rehab reward...\npress DEL to stop')
+        root.update()
+        current_agent.claim_nikke_rehab_reward()
+        current_status.set('Stopped claiming Nikke rehab reward.')
+
 
 def select_game_window():
     global current_agent
@@ -272,18 +298,30 @@ btnInfChaos.grid(row=7, column=2)
 btnx1=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="Rookie arena", bg="powder blue",command=rookie_arena)
 btnx1.grid(row=7, column=3)
 
+btnLoadProfile=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="Normal Shop Free", bg="powder blue",command=normal_shop)
+btnLoadProfile.grid(row=8, column=0)
 
-btnSaveSetting=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="Save Settings", bg="powder blue",command=save_settings)
-btnSaveSetting.grid(row=8, column=0)
+btnLoadSkill=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="Claim Rehab Reward", bg="powder blue",command=claim_nikke_rehab_reward)
+btnLoadSkill.grid(row=8, column=1)
+
+btnInfChaos=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="???", bg="powder blue",command=qexit)
+btnInfChaos.grid(row=8, column=2)
+
+btnx1=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="???", bg="powder blue",command=qexit)
+btnx1.grid(row=8, column=3)
+
+
+btnSaveSetting=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="End Journey", bg="powder blue",command=qexit)
+btnSaveSetting.grid(row=9, column=0)
 
 btnx2=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="???", bg="powder blue",command=qexit)
-btnx2.grid(row=8, column=1)
+btnx2.grid(row=9, column=1)
 
 btnx3=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="???", bg="powder blue",command=qexit)
-btnx3.grid(row=8, column=2)
+btnx3.grid(row=9, column=2)
 
-btnprice=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="End Journey", bg="powder blue",command=qexit)
-btnprice.grid(row=8, column=3)
+btnprice=Button(f1,padx=16,pady=8, bd=10 ,fg="black",font=('ariel' ,12,'bold'),width=20, text="Save Settings", bg="powder blue",command=save_settings)
+btnprice.grid(row=9, column=3)
 
 
 if __name__ == "__main__":

@@ -241,6 +241,8 @@ class Agent:
             json.dump(profile, json_file, indent=4)
         self.logger.info(f'Succesfully saved profile to {self.profile_path}')
     
+    def focus(self):
+        return gio.switch_active_application(app_name=self.settings['active_window'], app_loc=self.location_map['home'])
     
     def is_home(self):
         pass
@@ -271,6 +273,7 @@ class Agent:
             return True
         else:
             item_list = [self.image_map['home_blabla'],self.image_map['home_friend'],self.image_map['home_union']]
+            self.focus()
             while gio.exist_image(item_list, region=self.location_map['home'].to_bounding()) is False:
                 gio.single_click("esc")
                 gio.delay(1)
@@ -373,13 +376,21 @@ class Agent:
     
     @retry_action()
     def advise_check_available_session(self):
-        ADVISE_AMOUT_TEXT = '咨询次数'
+        ADVISE_AMOUNT_TEXT_1 = '咨询次数'
+        ADVISE_AMOUNT_TEXT_2= '追踪妮姬'
+        available_advise_session = 0
         if not gio.exist_image(self.image_map['home_advise_home'], loop=True, timeout=3):
             self.logger.info('Leaving advising because not in advising UI')
             return None
         im = gio.get_location_image(self.location_map['home'])
         result = gio.read_text(im, detail=0)
-        available_advise_session = int([result[ind+1] for ind, s in enumerate(result) if s==ADVISE_AMOUT_TEXT][0].strip()[0])
+        if result:
+            for ind, s in enumerate(result):
+                if s==ADVISE_AMOUNT_TEXT_1:
+                    available_advise_session = int(result[ind+1][0].strip()[0])
+                elif s==ADVISE_AMOUNT_TEXT_2:
+                    available_advise_session = int(result[ind-1][0].strip()[0])
+
         return available_advise_session
     
     def advise_nikke_make_choice(self, nikke_name, choice_location):
@@ -408,7 +419,12 @@ class Agent:
                     break
                 nikke_location = loc.stretch(value=stretch_length, direction=stretch_direction)
                 name_im = gio.get_location_image(nikke_location)
-                nikke_name = gio.read_text(name_im)[0][-1]
+                name_raw = gio.read_text(name_im)[0]
+                if name_raw:
+                    nikke_name = name_raw[-1]
+                else:
+                    nikke_name = f'Unknown Nikke at location ({nikke_location.left}, {nikke_location.top})'
+                    
                 nikke_current_round.append(nikke_name)
                 print(loc)
                 print(nikke_location)
@@ -441,7 +457,7 @@ class Agent:
                         break
                     # start the advise session, continue until reaching a decision point
                     while gio.locate_image_and_click(self.image_map['home_advise_continue'],
-                                                    region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+                                                    region=self.location_map['home'].to_bounding(), confidence=0.7, loop=True, timeout=3):
                         continue
                     # grab the choices and make one
                     choice_location = gio.locate_image(self.image_map['home_advise_choice'],
@@ -451,7 +467,7 @@ class Agent:
 
                     # finish the conversation
                     while gio.locate_image_and_click(self.image_map['home_advise_continue'],
-                                                    region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+                                                    region=self.location_map['home'].to_bounding(), confidence=0.7, loop=True, timeout=3):
                         continue
                     # back to advise menu
                     
@@ -476,6 +492,36 @@ class Agent:
         self.logger.info("ended a round of advising nikkes")
         
         return end_session, nikke_advised, nikke_current_round
+    
+    
+    def conversation_choice(self, choice_location, choice_information=None, decision_func=None):
+        """
+            make a decision choice based on the information and decision function
+            if no decision function presented, always return the first choice location available
+        """
+        final_choice_loc = None
+        if not decision_func:
+            final_choice_loc = choice_location[0]
+        return final_choice_loc
+    
+    def conversation(self):
+        self.logger.info('checking to start a conversation...')
+        in_progress = True
+        while in_progress:
+            in_progress =  gio.locate_image_and_click(self.image_map['home_advise_continue'],
+                                            region=self.location_map['home'].to_bounding(), confidence=0.7, loop=True, timeout=3)
+            if not in_progress:
+                # grab the choices and make one
+                choice_location = gio.locate_image(self.image_map['home_advise_choice'],
+                                                region=self.location_map['home'].to_bounding(), multi=True)
+                if choice_location:
+                    in_progress = True
+                else:
+                    break
+                current_choice = self.conversation_choice(choice_location=choice_location)
+                gio.mouse_left_click(current_choice.coord())
+        self.logger.info('conversation ended.')
+        return True
     
     def advise_nikke(self):
         self.logger.info("advising nikkes start")
@@ -685,6 +731,50 @@ class Agent:
             self.logger.error('unable to detect opponent')
         return optimal_opponent   
     
+    def rookie_arena_single_session(self):
+        self.logger.info('Retrieving rookie arena information')
+        self_info = self.rookie_arena_get_self_information()
+        enemy_info = self.rookie_arena_get_enemy_information()
+
+        timeout = 2
+        wait_time = 0
+        # if no free fight, leave
+        while not enemy_info or not enemy_info[0].get('fight_loc'):
+            if wait_time > timeout:
+                self.logger.info('No more free battle available')
+                return False
+            gio.delay(1)
+            self.logger.info('Seems like no more free battles. Retrying...')
+            enemy_info = self.rookie_arena_get_enemy_information()
+            wait_time += 1
+
+
+        # select opponent based on information    
+        self.logger.info('Selected opponent')
+        optimal_opponent = self.select_opponent(self_info, enemy_info, max_power_level_gap=1000)
+
+        gio.locate_image_and_click(self.image_map['home_ark_arena_rookie_free'],
+                                              region=optimal_opponent['fight_loc'].to_bounding(), loop=True, timeout=3)
+
+        # start fight
+        if gio.locate_image_and_click(self.image_map['home_ark_arena_rookie_fight'],
+                                              region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+            self.logger.info('Battle session started')
+
+        # wait for arena to load
+        gio.delay(3)
+
+        # wait for fight to finish
+        while not self.rookie_arena_get_self_information():
+            if not gio.locate_image_and_click(self.image_map['home_ark_arena_rookie_arena_end'],
+                                                  region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+                self.logger.info('Waiting for battle session to finish')
+            else:
+                self.logger.info('Battle session ended')
+
+            gio.delay(5)
+        gio.delay(5)
+        return True
     
     def rookie_arena(self):
         self.logger.info("rookie arena run start")
@@ -708,41 +798,7 @@ class Agent:
         
         while free_arena_available:
             # retrieve arena information
-            self.logger.info('Retrieving rookie arena information')
-            self_info = self.rookie_arena_get_self_information()
-            enemy_info = self.rookie_arena_get_enemy_information()
-            
-            
-            # if no free fight, leave
-            if not enemy_info or not enemy_info[0].get('fight_loc'):
-                self.logger.info('No more free battle available')
-                break
-                
-            # select opponent based on information    
-            self.logger.info('Selected opponent')
-            optimal_opponent = self.select_opponent(self_info, enemy_info, max_power_level_gap=1000)
-            
-            gio.locate_image_and_click(self.image_map['home_ark_arena_rookie_free'],
-                                                  region=optimal_opponent['fight_loc'].to_bounding(), loop=True, timeout=3)
-            
-            # start fight
-            if gio.locate_image_and_click(self.image_map['home_ark_arena_rookie_fight'],
-                                                  region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
-                self.logger.info('Battle session started')
-            
-            # wait for arena to load
-            gio.delay(3)
-            
-            # wait for fight to finish
-            while not self.rookie_arena_get_self_information():
-                if not gio.locate_image_and_click(self.image_map['home_ark_arena_rookie_arena_end'],
-                                                      region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
-                    self.logger.info('Waiting for battle session to finish')
-                else:
-                    self.logger.info('Battle session ended')
-                
-                gio.delay(5)
-            gio.delay(5)
+            free_arena_available = self.rookie_arena_single_session()
       
             
         self.logger.info("rookie arena run end")  
@@ -752,6 +808,178 @@ class Agent:
     
     def arena_claim_special_arena_points(self):
         pass
+    
+    
+    def normal_shop_refresh(self, free=True):
+        """
+        try to refresh a normal shop
+        """
+        self.logger.info('Tryin to refresh normal shop')
+        if not gio.locate_image_and_click(self.image_map['home_shop_refresh'],
+                                          region=self.location_map['home'].to_bounding(),
+                                          loop=True, timeout=3):
+            self.logger.info('Could not find refresh button')
+            return False
+        if free:
+            if not gio.locate_image_and_click(self.image_map['home_shop_cost_0'],
+                                    region=self.location_map['home'].to_bounding(),
+                                    confidence=0.95, loop=True, timeout=3):
+                gio.locate_image_and_click(self.image_map['cancel'],
+                            region=self.location_map['home'].to_bounding(),
+                            loop=True, timeout=3)
+                self.logger.info('The refresh is not free')
+                return False
+        if not gio.locate_image_and_click(self.image_map['confirm'],
+                                          region=self.location_map['home'].to_bounding(),
+                                          loop=True, timeout=3):
+            gio.locate_image_and_click(self.image_map['cancel'],
+                                        region=self.location_map['home'].to_bounding(),
+                                        loop=True, timeout=3)
+            self.logger.info('Could not refresh the normal shop')
+            return False
+        
+        return True
+
+    def normal_shop_buy_item(self, free=True):
+        if free:
+            if not gio.locate_image_and_click(self.image_map['home_shop_sale_100'],
+                                              region=self.location_map['home'].to_bounding(),
+                                              confidence=0.95, loop=True, timeout=3):
+                self.logger.info('Cannot find free item')
+                return False
+            if not gio.locate_image_and_click(self.image_map['home_shop_buy_100'],
+                                    region=self.location_map['home'].to_bounding(),
+                                    confidence=0.95, loop=True, timeout=3):
+                self.logger.info('Item to purchase does not seem to be free')
+                gio.locate_image_and_click(self.image_map['cancel'],
+                                            region=self.location_map['home'].to_bounding(),
+                                            loop=True, timeout=3)
+                return False
+            if not gio.locate_image_and_click(self.image_map['confirm'], region=self.location_map['home'].to_bounding()):
+                self.logger.info('Cannot find confirmation to purchase')
+                gio.locate_image_and_click(self.image_map['cancel'],
+                            region=self.location_map['home'].to_bounding(),
+                            loop=True, timeout=3)
+                return False
+            if not gio.locate_image_and_click(self.image_map['reward'],region=self.location_map['home'].to_bounding(),
+                                            loop=True, timeout=3):
+                self.logger.info('Could not claim reward')
+                return False
+            gio.delay(1)
+        return True
+
+
+    def normal_shop(self):
+        """
+        A daily shopping session to buy free material at the shop
+        Refreshes for free if no free material
+        Stops if no more free materials
+        """
+        self.logger.info('Normal shop session started...')
+        
+        # if no shop starting point available exit home
+        if not gio.locate_image_and_click(self.image_map['home_shop'], region=self.location_map['home'].to_bounding()):
+            self.logger.info('Could not find shop entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_shop'], region=self.location_map['home'].to_bounding()):
+                self.logger.info('Could not find shop entrance, session ended')
+                return False
+
+        shop_session = True
+        item_available = False
+        items_shopped = 0
+        while shop_session:
+            item_available = self.normal_shop_buy_item()
+            if not item_available:
+                shop_session = self.normal_shop_refresh()
+            else:
+                items_shopped += 1
+                self.logger.info('Bought one item for free')
+
+        self.logger.info(f'Shopping session ended. Bought in total of {items_shopped} items.')
+        self.exit_to_home()
+    
+    
+    def claim_nikke_rehab_reward_single_session(self):
+        self.logger.info('Started single round of rehab reward claiming...')
+        if not gio.locate_image_and_click(self.image_map['home_outpost_elevator_rehab_home'],
+                                        region=self.location_map['home'].to_bounding(),
+                                        loop=True, timeout=20, button=None):
+            self.logger.info('Could not reach rehab home')
+            return False
+        
+
+        r_reward_loc = gio.locate_image(self.image_map['home_outpost_elevator_rehab_complete_r'],
+                                        region=self.location_map['home'].to_bounding(),multi=True)
+        sr_reward_loc = gio.locate_image(self.image_map['home_outpost_elevator_rehab_complete_sr'],
+                                        region=self.location_map['home'].to_bounding(),multi=True)
+        ssr_reward_loc = gio.locate_image(self.image_map['home_outpost_elevator_rehab_complete_ssr'],
+                                        region=self.location_map['home'].to_bounding(),multi=True)
+
+        r_reward_loc = r_reward_loc if r_reward_loc is not None else []
+        sr_reward_loc = sr_reward_loc if sr_reward_loc is not None else []
+        ssr_reward_loc = ssr_reward_loc if ssr_reward_loc is not None else []
+        
+        expected_reward_count = 3
+        total_reward_count = len(r_reward_loc) + len(sr_reward_loc) + len(ssr_reward_loc)
+        
+        for r_loc in r_reward_loc:
+            gio.mouse_left_click(r_loc.coord())
+            self.conversation()
+        for r_loc in sr_reward_loc:
+            gio.mouse_left_click(r_loc.coord())
+            self.conversation()
+        for r_loc in ssr_reward_loc:
+            gio.mouse_left_click(r_loc.coord())
+            self.conversation()
+        
+
+        if total_reward_count < expected_reward_count:
+            self.logger.info(f'there are {expected_reward_count - total_reward_count} rewards that needs manual intervention to claim')
+        elif total_reward_count > expected_reward_count:
+            self.logger.warning(f'there are unexpected amount of {total_reward_count} when the maximum expected reward count is {expected_reward_count}')
+        
+        self.logger.info(f'Successfully claimed {total_reward_count} rehab rewards')
+        
+        return total_reward_count
+    
+    
+    def claim_nikke_rehab_reward(self):
+        self.logger.info('Claiming rehab reward session started...')
+        
+        # if no shop starting point available exit home
+        if not gio.locate_image_and_click(self.image_map['home_outpost'],
+                                        region=self.location_map['home'].to_bounding(),
+                                        loop=True, timeout=3):
+            self.logger.info('Could not find rehab entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_outpost'],
+                                        region=self.location_map['home'].to_bounding(),
+                                        loop=True):
+                self.logger.info('Could not find rehab entrance, session ended')
+                return False
+        
+        if not gio.locate_image_and_click(self.image_map['home_outpost_elevator'],
+                                        region=self.location_map['home'].to_bounding(),
+                                        loop=True):
+            self.logger.info('Could not find elevator entrance')
+            return False
+        
+        if not gio.locate_image_and_click(self.image_map['home_outpost_elevator_enter'],
+                                        region=self.location_map['home'].to_bounding(),
+                                        loop=True):
+            self.logger.info('Could enter elevator')
+            return False 
+
+        reward_count = self.claim_nikke_rehab_reward_single_session()
+        
+        self.logger.info(f'Rehab reward claiming ended.')
+        self.exit_to_home()        
+
+    
+    
     
     def auto_daily(self):
         self.logger.info(f'starting daily')

@@ -26,25 +26,41 @@
             "auto": true,
             "settings": {}
         },
-        "4":{
-            "name":"event",
+        "4": {
+            "name": "event",
             "display_name": "Repeat Event Levels",
             "priority": 4,
             "frequency": "daily",
-            "auto":false,
-            "settings":{
-                "level_to_repeat":"1-11"
+            "auto": false,
+            "settings": {
+                "level_to_repeat": "1-11"
             }
-        }, 
-        "5":{
-            "name":"arena_rookie",
+        },
+        "5": {
+            "name": "rookie_arena",
             "display_name": "Rookie Arena",
             "priority": 5,
             "frequency": "daily",
-            "auto":true,
-            "settings":{
+            "auto": true,
+            "settings": {
                 "max_power_gap": 1000
             }
+        },
+        "6": {
+            "name": "normal_shop",
+            "display_name": "Normal Shop Free",
+            "priority": 6,
+            "frequency": "daily",
+            "auto": true,
+            "settings": {}
+        },
+        "7": {
+            "name": "claim_rehab_reward",
+            "display_name": "Rehab Reward",
+            "priority": 7,
+            "frequency": "daily",
+            "auto": true,
+            "settings": {}
         }
     },
     "agent_type": "nikke",
