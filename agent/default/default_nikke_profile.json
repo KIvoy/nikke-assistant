@@ -55,17 +55,29 @@
             "settings": {}
         },
         "7": {
-            "name": "claim_rehab_reward",
+            "name": "claim_nikke_rehab_reward",
             "display_name": "Rehab Reward",
             "priority": 7,
             "frequency": "daily",
             "auto": true,
             "settings": {}
+        },
+        "8": {
+            "name": "simulation_room",
+            "display_name": "Simulation Room",
+            "priority": 7,
+            "frequency": "daily",
+            "auto": false,
+            "settings": {
+                "difficulty":5,
+                "sector":"C"
+            }
         }
     },
     "agent_type": "nikke",
     "settings": {
         "load_to_memory": true,
-        "active_window": "NIKKE"
+        "active_window": "NIKKE",
+        "auto_rescale": true
     }
 }

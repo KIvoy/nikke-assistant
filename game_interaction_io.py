@@ -8,6 +8,7 @@ from easyocr import Reader
 import pyautogui
 import time
 from PIL import ImageGrab
+from PIL import Image
 from types import GeneratorType
 import cv2
 import pytesseract
@@ -33,16 +34,41 @@ class GameInteractionIO:
 
     post_action = post_action_generator(post_action_delay)
 
+    def to_cv2(image):
+        return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+    def to_pil(image):
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        im_pil = Image.fromarray(image)
+        return im_pil
+
     def switch_active_application(app_name, app_loc=None):
         app_list = [""]
         if not app_loc:
             app_list = GameInteractionIO.get_available_applications(
                 verbose=True)
         else:
-            app_list = gw.getWindowsAt(*GameInteractionIO.get_image_center(app_loc))
+            app_list = gw.getWindowsAt(
+                *GameInteractionIO.get_image_center(app_loc))
         app = [app for app in app_list if app.title == app_name][0]
         if app:
             app.activate()
+        else:
+            return False
+        return True
+
+    def resize_application(app_name, app_loc=None, size=None):
+        app_list = [""]
+        if not app_loc:
+            app_list = GameInteractionIO.get_available_applications(
+                verbose=True)
+        else:
+            app_list = gw.getWindowsAt(
+                *GameInteractionIO.get_image_center(app_loc))
+
+        app = [app for app in app_list if app.title == app_name][0]
+        if app and size:
+            app.resizeTo(*size)
         else:
             return False
         return True
@@ -249,7 +275,7 @@ class GameInteractionIO:
         rmse = np.linalg.norm(measured - truth) / np.sqrt(len(truth))
         return rmse
 
-    def _remove_duplicated_location(image_location_list, threshold=0.1):
+    def _remove_duplicated_location_once(image_location_list, threshold=0.1):
         if not image_location_list:
             return image_location_list
         il_prev = image_location_list[0]
@@ -259,6 +285,49 @@ class GameInteractionIO:
                 new_image_location_list.append(il)
                 il_prev = il
         return new_image_location_list
+
+    def _remove_duplicated_location(image_location_list, threshold=0.1):
+        if not image_location_list:
+            return image_location_list
+
+        new_image_location_list = GameInteractionIO.non_maximum_suppresion(
+            image_location_list, threshold=threshold)
+
+        return new_image_location_list
+
+    def non_maximum_suppresion(loc_list, threshold=0.4):
+        boxes = np.array([loc.to_bounding() for loc in loc_list])
+        # Return an empty list, if no boxes given
+        if len(boxes) == 0:
+            return []
+        x1 = boxes[:, 0]  # x coordinate of the top-left corner
+        y1 = boxes[:, 1]  # y coordinate of the top-left corner
+        x2 = boxes[:, 2]  # x coordinate of the bottom-right corner
+        y2 = boxes[:, 3]  # y coordinate of the bottom-right corner
+        # Compute the area of the bounding boxes and sort the bounding
+        # Boxes by the bottom-right y-coordinate of the bounding box
+        # We add 1, because the pixel at the start as well as at the end counts
+        areas = (x2 - x1 + 1) * (y2 - y1 + 1)
+        # The indices of all boxes at start. We will redundant indices one by one.
+        indices = np.arange(len(x1))
+        for i, box in enumerate(boxes):
+            # Create temporary indices
+            temp_indices = indices[indices != i]
+            # Find out the coordinates of the intersection box
+            xx1 = np.maximum(box[0], boxes[temp_indices, 0])
+            yy1 = np.maximum(box[1], boxes[temp_indices, 1])
+            xx2 = np.minimum(box[2], boxes[temp_indices, 2])
+            yy2 = np.minimum(box[3], boxes[temp_indices, 3])
+            # Find out the width and the height of the intersection box
+            w = np.maximum(0, xx2 - xx1 + 1)
+            h = np.maximum(0, yy2 - yy1 + 1)
+            # compute the ratio of overlap
+            overlap = (w * h) / areas[temp_indices]
+            # if the actual boungding box has an overlap bigger than treshold with any other box, remove it's index
+            if np.any(overlap) > threshold:
+                indices = indices[indices != i]
+        # return only the boxes at the remaining indices
+        return [loc_list[ind] for ind in indices]
 
     def locate_image(image_path, master_image_path=None, confidence=0.8, region=None, multi=False, multi_threshold=0.3):
         if isinstance(image_path, list):
@@ -388,8 +457,8 @@ class GameInteractionIO:
     def mouse_center(window_center):
         pyautogui.moveTo(*window_center)
 
-    def mouse_center_click(window_center):
-        pyautogui.moveTo(*window_center)
+    def mouse_center_click(image_location):
+        window_center = GameInteractionIO.get_image_center(image_location)
         pyautogui.click(*window_center, clicks=1, interval=1, button='left')
 
     def locate_image_and_double_click(image_path, region_im=None, region_location=None, region=None, button='left'):

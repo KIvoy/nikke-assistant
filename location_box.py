@@ -2,7 +2,7 @@ import numpy as np
 
 
 class LocationBox:
-    def __init__(self, left=0, top=0, width=0, height=0, box=None, _box=None):
+    def __init__(self, left=0, top=0, width=0, height=0, box=None, _box=None, points=None):
         if box:
             left = box.left
             top = box.top
@@ -13,11 +13,24 @@ class LocationBox:
             top = _box._top
             width = _box._width
             height = _box._height
+        elif points:
+            loc = self.points_to_loc(points)
+            left = loc.left
+            top = loc.top
+            width = loc.width
+            height = loc.height
 
         self.left = left
         self.top = top
         self.width = width
         self.height = height
+
+    def points_to_loc(self, points):
+        x_coordinates, y_coordinates = zip(*points)
+        return LocationBox(min(x_coordinates),
+                           min(y_coordinates),
+                           max(x_coordinates)-min(x_coordinates),
+                           max(y_coordinates) - min(y_coordinates))
 
     def to_array(self):
         return [self.left, self.top, self.width, self.height]
@@ -27,6 +40,9 @@ class LocationBox:
 
     def translate(self, x, y):
         return LocationBox(self.left+x, self.top+y, self.width, self.height)
+
+    def resize(self, width, height):
+        return LocationBox(self.left, self.top, width, height)
 
     def coord(self):
         return np.array([self.left, self.top])

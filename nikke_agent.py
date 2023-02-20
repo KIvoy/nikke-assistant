@@ -65,6 +65,7 @@ class Agent:
     def initialize_game(self, app_name=None):
         # initialize all features
         self.default_resolution = [575, 1022]
+        self.default_real_resolution = [591, 1061]
         self.default_advise_nikke_stretch_length = 250
         self.image_path = 'images'
         self.NIKKE_PC_WINDOW = 'NIKKE'
@@ -73,8 +74,11 @@ class Agent:
         self.set_active_window(app_name)
         self.setup_image_profile()
         self.set_game_settings()
+        return True
 
     def select_active_window(self, app_name=None):
+        if not app_name:
+            app_name = self.settings.get('active_window')
         self.set_active_window(app_name)
         self.setup_image_profile()
         self.set_game_settings()
@@ -243,6 +247,18 @@ class Agent:
 
     def focus(self):
         return gio.switch_active_application(app_name=self.settings['active_window'], app_loc=self.location_map['home'])
+
+    def resize(self, resolution=None):
+        if not resolution:
+            resolution = self.default_real_resolution
+        gio.resize_application(app_name=self.settings['active_window'],
+                               app_loc=self.location_map['home'],
+                               size=resolution)
+        self.select_active_window()
+        return True
+
+    def resize_to_optimal(self):
+        self.resize(resolution=self.default_real_resolution)
 
     def is_home(self):
         pass
@@ -691,6 +707,11 @@ class Agent:
         return self_info
 
     def select_opponent(self, self_info, enemy_info, max_power_level_gap=1000):
+        self.logger.info('Selecting opponent...')
+        self.logger.debug('My information')
+        self.logger.debug(self_info)
+        self.logger.debug('Opponent information')
+        self.logger.debug(enemy_info)
         optimal_opponent = None
         average_rank = None
         average_power_level = None
@@ -1007,7 +1028,88 @@ class Agent:
         self.logger.info(f'Rehab reward claiming ended.')
         self.exit_to_home()
 
-    def auto_daily(self):
+    def simulation_room_single_battle(self):
+        pass
+
+    def simulation_room_single_run(self, difficulty=5, sector="C"):
+        sector = sector.lower()
+        self.logger.info(
+            f'starting simulation run difficulty {difficulty} sector {sector}...')
+
+        if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_level_{difficulty}'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True):
+            self.logger.info(f'Could not find difficulty {difficulty}')
+            return False
+
+        if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_sector_{sector}'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True):
+            self.logger.info(f'Could not find sector {difficulty}')
+            return False
+
+        if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_start_session'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True):
+            self.logger.info(f'Could not start session')
+            return False
+
+        if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_end_session'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, button=None):
+            self.logger.info(f'Could not load simulation screen')
+            return False
+
+        self.logger.info(
+            f'Finished simulation run difficulty {difficulty} sector {sector}...')
+        return True
+
+    def simulation_room(self):
+        self.logger.info('Simulation room started...')
+
+        # if no shop starting point available exit home
+        if not gio.locate_image_and_click(self.image_map['home_ark'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            self.logger.info(
+                'Could not find ark entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_ark'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info(
+                    'Could not find ark entrance, session ended')
+                return False
+
+        gio.delay(2)
+
+        if not gio.locate_image_and_click(self.image_map['home_ark_simulation_room'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True):
+            self.logger.info('Could not find simulation room entrance')
+            return False
+
+        if not gio.locate_image_and_click(self.image_map['home_ark_simulation_room_start'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True):
+            self.logger.info('Could start simulation')
+            return False
+
+        success = self.simulation_room_single_run()
+
+        self.logger.info(f'Simulation room ended.')
+        self.exit_to_home()
+
+    def auto_daily(self, timeout=3):
         self.logger.info(f'starting daily')
         self.logger.info(
             f'{len([r for k, r in self.routine.items() if (r.get("auto") is True and r.get("frequency") == "daily") ])} dailies to run')
@@ -1017,7 +1119,13 @@ class Agent:
             if r.get("auto") is True and r.get("frequency") == "daily":
                 func = getattr(self, r.get("name"))
                 self.logger.info(f'running daily {r.get("name")}')
-                func()
+                for i in range(timeout):
+                    try:
+                        func()
+                        break
+                    except Exception as e:
+                        self.logger.error(f"While trying daily {i+1} time {r.get('display_name')} the following error occured")
+                        self.logger.error(e)
 
     def test(self):
         return locals()
