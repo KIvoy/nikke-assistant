@@ -57,7 +57,7 @@ class GameInteractionIO:
             return False
         return True
 
-    def resize_application(app_name, app_loc=None, size=None):
+    def resize_application(app_name="NIKKE", app_loc=None, size=None):
         app_list = [""]
         if not app_loc:
             app_list = GameInteractionIO.get_available_applications(
@@ -80,29 +80,62 @@ class GameInteractionIO:
             app_list = [app.title for app in app_list]
         return app_list
 
-    def stretch_white_space(image):
+    def sharpen(image):
+        kernel = np.array([[0, -3, 0],
+                           [-1, 9, -1],
+                           [0, -3, 0]])
+        image_sharp = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
+        return image_sharp
+
+    def stretch_white_space(image, empty_count=5):
         white_space = np.array([[255]*(image.shape[1])]*2)
         p = np.concatenate((white_space, image))
 
-        a = np.array([[255]*(p.shape[0])]).T
-        prev = 0
-        empty_count = 5
-        count = 0
-        digit = []
-        for ind in range(p.shape[1]):
-            if np.mean(p[:, ind]) == 255:
-                a = np.concatenate((a, p[:, prev:ind+1]), axis=1)
-                a = np.concatenate((a, np.array([p[:, ind]]*11).T), axis=1)
-                if np.mean(p[:, prev:ind+1].flatten()) != 255:
-                    digit.append(np.array(p[:, prev:ind+1], dtype=np.uint8))
-                prev = ind
-                count += 1
-                if count > empty_count:
-                    break
+        # a = np.array([[255]*(p.shape[0])]).T
+        a = p
+        empty_count = round(empty_count)
+#         prev = 0
+#         count = 0
+#         digit = []
+#         for ind in range(p.shape[1]):
+#             if np.mean(p[:, ind]) == 255:
+#                 a = np.concatenate((a, p[:, prev:ind+1]), axis=1)
+#                 a = np.concatenate((a, np.array([p[:, ind]]*11).T), axis=1)
+#                 if np.mean(p[:, prev:ind+1].flatten()) != 255:
+#                     digit.append(np.array(p[:, prev:ind+1], dtype=np.uint8))
+#                 prev = ind
+#                 count += 1
+#                 if count > empty_count:
+#                     break
+#             else:
+#                 count = 0
+
+        white_space_count = 0
+        max_white_space = empty_count
+        prev = 255
+        b = np.array([[255]*(a.shape[0])]).T
+        filler = np.array([[255]*(a.shape[0])]).T
+        for ind in range(a.shape[1]):
+            cur = np.mean(a[:, ind])
+            # print(cur)
+            if cur >= 250:
+                if prev >= 250:
+                    if white_space_count <= max_white_space:
+                        b = np.concatenate((b, filler), axis=1)
+                        white_space_count += 1
+                else:
+                    b = np.concatenate((b, filler), axis=1)
+                    white_space_count = 0
             else:
-                count = 0
-        a = a.astype(np.uint8)
-        return a, digit
+                if prev >= 250 and (white_space_count < max_white_space):
+                    b = np.concatenate(
+                        (b, np.array([[255]*(a.shape[0])]*(max_white_space-white_space_count)).T), axis=1)
+                b = np.concatenate((b, a[:, [ind]]), axis=1)
+                white_space_count = 0
+            prev = cur
+
+        b = b.astype(np.uint8)
+        return b
 
     def preprocess_image(image, threshold='global'):
         """
@@ -120,15 +153,51 @@ class GameInteractionIO:
             new_image - erode
         return new_image
 
-    def preprocess_image_number(image):
+    def resize(im, ratio):
+        return im.resize((round(s*ratio) for s in im.size))
+
+    def is_white_background(image, threshold=0.3):
+        """remove images with transparent or white background"""
+        background = np.array([230, 230, 255])
+        percent = (image >= background).sum() / image.size
+        if percent >= threshold:
+            return True
+        else:
+            return False
+
+    def preprocess_image_number(image, threshold=80):
         """
         preprocess a PIL image to make it more visible for text recognition
         """
+        # resize to best size
+        image = GameInteractionIO.resize(image, 2)
+
+        # convert to cv2 format
         image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        ret, thresh = cv2.threshold(gray, 110, 255, cv2.THRESH_BINARY)
-        erode = cv2.erode(thresh, np.array((9, 9)), iterations=1)
-        stretch_image, digit = GameInteractionIO.stretch_white_space(erode)
+
+        # normalize image
+        normalized = cv2.normalize(image, None, 0, 255, cv2.NORM_MINMAX)
+
+        # invert image if background is black
+        if not GameInteractionIO.is_white_background(normalized, threshold=0.2):
+            normalized = cv2.bitwise_not(normalized)
+
+        # grayscale
+        gray = cv2.cvtColor(normalized, cv2.COLOR_BGR2GRAY)
+
+        # threshold
+        ret, thresh = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
+
+        # blur and sharppen
+        blured = cv2.GaussianBlur(thresh, (3, 3), 0)
+        sharpened = GameInteractionIO.sharpen(blured)
+
+        # erode
+        # erode = cv2.erode(sharpened, np.array((3, 3)), iterations=1)
+
+        # stretch space
+        stretch_image = GameInteractionIO.stretch_white_space(sharpened, 4*2)
+
         return stretch_image
 
     def read_text(image_name, model_name=None, detail=1, in_line=True):
@@ -141,14 +210,14 @@ class GameInteractionIO:
         result = model_name.readtext(frame, detail=detail, paragraph=in_line)
         return result
 
-    def _read_number(image, l=0, im_type=6):
+    def _read_number(image, l=0, im_type=6, model_type='digits', threshold=120):
         if l == 0:
             value = pytesseract.image_to_string(image,
-                                                config=f'--psm {im_type} outputbase digits tessedit_char_whitelist=0123456789').strip().replace(" ", "")
+                                                config=f'-l eng --oem 1 --psm {im_type} outputbase digits tessedit_char_whitelist=0123456789').strip().replace(" ", "")
         elif l == 1:
-            image = GameInteractionIO.preprocess_image_number(image)
+            image = GameInteractionIO.preprocess_image_number(image, threshold)
             value = pytesseract.image_to_string(image,
-                                                config=f'--psm {im_type} outputbase digits tessedit_char_whitelist=0123456789').strip().replace(" ", "")
+                                                config=f'-l {model_type} --oem 1 --psm {im_type} outputbase digits tessedit_char_whitelist=0123456789').strip().replace(" ", "")
 
         value = re.sub('[^A-Za-z0-9]+', '\n', value)
         if not value.isdigit():
@@ -156,7 +225,7 @@ class GameInteractionIO:
         value = int(value)
         return value
 
-    def read_number(image, l=0):
+    def read_number(image, l=0, threshold=80):
         """
         image types
         #   0    Orientation and script detection (OSD) only.
@@ -176,12 +245,17 @@ class GameInteractionIO:
         #             bypassing hacks that are Tesseract-specific.
         """
         value = False
-        im_type_list = [6, 7, 8, 9, 10, 11, 12, 13]
+        im_type_list = [6, 8, 10, 12]
+        model_type_list = ['digitsall_layer',
+                           # 'digits'
+                           ]
         value_list = []
         for im_type in im_type_list:
-            value = GameInteractionIO._read_number(image, l, im_type)
-            if value:
-                value_list.append(value)
+            for model_type in model_type_list:
+                value = GameInteractionIO._read_number(
+                    image, l, im_type, model_type, threshold)
+                if value:
+                    value_list.append(value)
         if not value:
             value = GameInteractionIO.read_text(image, detail=0)
             if value:
@@ -192,6 +266,8 @@ class GameInteractionIO:
                     value_list.append(value)
         if len(value_list) > 0:
             value = max(value_list)
+        else:
+            value = False
         return value
 
     def repeat_press(key, hold_time):

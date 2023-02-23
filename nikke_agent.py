@@ -176,7 +176,7 @@ class Agent:
 
         self.resolution = [app_location.width, app_location.height]
         self.res_multi = self.resolution[1]/self.default_resolution[1]
-        print('succesfully detected app window')
+        self.logger.info('succesfully detected app window')
         return True
 
     def load_profile(self, profile=None, profile_path=None):
@@ -200,7 +200,7 @@ class Agent:
         self.type = profile.get('agent_type', 'unknown type')
         self.settings = profile.get('settings', 'unknown settings')
 
-        print('Loaded profile {}'.format(self.profile_name))
+        self.logger.info('Loaded profile {}'.format(self.profile_name))
 
     def load_game_settings(self, profile=None, profile_path=None):
         """
@@ -218,7 +218,7 @@ class Agent:
 
         setting_type = 'default'
         self.game_settings = profile.get(setting_type)
-        print(f'loaded {setting_type} game settings')
+        self.logger.info(f'loaded {setting_type} game settings')
 
     def set_game_settings(self, setting_type='default'):
         # if resolution changed, modify all game related variables that would change with resolution
@@ -447,8 +447,6 @@ class Agent:
                     nikke_name = f'Unknown Nikke at location ({nikke_location.left}, {nikke_location.top})'
 
                 nikke_current_round.append(nikke_name)
-                print(loc)
-                print(nikke_location)
                 self.logger.info(f"started advising {nikke_name}")
                 if nikke_advised.get(nikke_name) is None:
                     nikke_advised[nikke_name] = {}
@@ -503,11 +501,8 @@ class Agent:
                         break
                     nikke_advised.get(nikke_name)['advised'] = True
 
-        # scroll down to find new nikkes
-        self.scroll()
-
         # if there hasn't been any changes in Nikke advised
-        if set(nikke_last_round) == set(nikke_current_round):
+        if nikke_last_round == nikke_current_round:
             self.logger.info("No more new nikkes to advise")
             end_session = True
 
@@ -552,9 +547,16 @@ class Agent:
         end_session = False
         if not gio.locate_image_and_click(self.image_map['home_advise'],
                                           region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+
             self.logger.warning(
-                "advising nikkes failed because the nikke icon is not found")
-            return False
+                "advise option now found, returning home to try again")
+            self.exit_to_home()
+            if not gio.locate_image_and_click(self.image_map['home_advise'],
+                                              region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+                self.logger.warning(
+                    "advising nikkes failed because the nikke icon is not found")
+                return False
+
         if not gio.locate_image_and_click(self.image_map['home_advise_home'],
                                           region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
             self.logger.warning(
@@ -563,8 +565,13 @@ class Agent:
 
         # keep advising nikkes until reaching the stopping condition
         while not end_session:
-            end_session, nikke_advised, nikke_last_round = self.advise_nikke_single_round(
+            end_session, nikke_advised, nikke_current_round = self.advise_nikke_single_round(
                 nikke_advised, nikke_last_round)
+            if nikke_last_round == nikke_current_round:
+                self.scroll()
+                end_session, nikke_advised, nikke_current_round = self.advise_nikke_single_round(
+                    nikke_advised, nikke_last_round)
+            nikke_last_round = nikke_current_round
 
         self.logger.info("advising nikkes end successful")
         #
@@ -669,7 +676,7 @@ class Agent:
                                             ).stretch(ras['ENEMY_POWER_V_STRETCH'], axis=1, direction='up'
                                                       ).translate(ras['ENEMY_POWER_H_TRANS'], ras['ENEMY_POWER_V_TRANS'])
                 p_img = gio.get_location_image(p)
-                p_rank = gio.read_number(p_img, l=0)
+                p_rank = gio.read_number(p_img, l=1)
                 enemy_info[ind]['power_level'] = p_rank
 
         return enemy_info
@@ -688,7 +695,7 @@ class Agent:
                                  ).stretch(ras['SELF_RANK_V_STRETCH'], axis=1, direction='up'
                                            ).translate(ras['SELF_RANK_H_TRANS'], ras['SELF_RANK_V_TRANS'])
             r_img = gio.get_location_image(r)
-            r_rank = gio.read_number(r_img, l=0)
+            r_rank = gio.read_number(r_img, l=1)
             self_info['rank'] = r_rank
 
         power_level_loc = gio.locate_image(self.image_map['home_ark_arena_rookie_power_level'],
@@ -701,8 +708,7 @@ class Agent:
                                         ).stretch(ras['SELF_POWER_V_STRETCH'], axis=1, direction='up'
                                                   ).translate(ras['SELF_POWER_H_TRANS'], ras['SELF_POWER_V_TRANS'])
             p_img = gio.get_location_image(p)
-            print(p)
-            p_rank = gio.read_number(p_img, l=0)
+            p_rank = gio.read_number(p_img, l=1)
             self_info['power_level'] = p_rank
         return self_info
 
@@ -792,7 +798,7 @@ class Agent:
 
         # start fight
         if gio.locate_image_and_click(self.image_map['home_ark_arena_rookie_fight'],
-                                      region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+                                      region=self.location_map['home'].to_bounding(), loop=True):
             self.logger.info('Battle session started')
 
         # wait for arena to load
@@ -816,8 +822,13 @@ class Agent:
         if not gio.locate_image_and_click(self.image_map['home_ark'],
                                           region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
             self.logger.warning(
-                "rookie arena run failed because the ark icon is not found")
-            return False
+                "rookie arena ark icon is not found, retrying at home...")
+            self.exit_to_home()
+            if not gio.locate_image_and_click(self.image_map['home_ark'],
+                                              region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+                self.logger.warning(
+                    "rookie arena run failed because the ark icon is not found")
+                return False
         gio.delay(2)
         if not gio.locate_image_and_click(self.image_map['home_ark_arena'],
                                           region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
@@ -1028,35 +1039,347 @@ class Agent:
         self.logger.info(f'Rehab reward claiming ended.')
         self.exit_to_home()
 
-    def simulation_room_single_battle(self):
-        pass
+    def get_buff_location(self):
+        buff_rarity = ['r', 'sr', 'ssr', 'epic']
+        buff_size = ['s', 'm', 'l']
+        buff_loc_list = []
+        for rarity in buff_rarity:
+            for size in buff_size:
+                buff_im = self.image_map.get(
+                    f'home_ark_simulation_room_buff_rarity_{rarity}_{size}')
+                if buff_im:
+                    buff_locs = gio.locate_image(buff_im,
+                                                 region=self.location_map['home'].to_bounding(), confidence=0.9, multi=True)
+                    if buff_locs:
+                        buff_loc_list.extend(buff_locs)
+        buff_loc_list = gio.non_maximum_suppresion(
+            buff_loc_list, threshold=0.1)
+        buff_loc_list = [buff_loc.stretch(440) for buff_loc in buff_loc_list]
+        return buff_loc_list
 
-    def simulation_room_single_run(self, difficulty=5, sector="C"):
+    def simulation_room_select_buff_simple(self, buff_locs):
+        buff_info = {}
+        buff_selected = None
+        buff_types = ["boss", "choice", "heal", "normal", "upgrade"]
+        buff_subtypes = ["attack", "survival", "strategic",
+                         "circle", "square", "diamond", "triangle", "mixed"]
+        for ind, buff_loc in enumerate(buff_locs):
+            info = {}
+            info['loc'] = buff_loc
+            buff_im = gio.get_location_image(buff_loc)
+            buff_types = ["boss", "choice", "heal", "normal", "upgrade"]
+            for buff_type in buff_types:
+                is_buff_type = gio.exist_image(self.image_map[f'home_ark_simulation_room_buff_type_{buff_type}'],
+                                               master_image_path=buff_im)
+                if is_buff_type:
+                    info['buff_type'] = buff_type
+                    break
+            for buff_subtype in buff_subtypes:
+                is_buff_subtype = gio.exist_image(self.image_map[f'home_ark_simulation_room_buff_subtype_{buff_subtype}'],
+                                                  master_image_path=buff_im)
+                if is_buff_subtype:
+                    info['buff_subtype'] = buff_subtype
+                    break
+            buff_info[ind] = info
+
+        buff_types_info = [info['buff_type']
+                           for ind, info in buff_info.items()]
+        if 'boss' in buff_types_info:
+            ind = buff_types_info.index('boss')
+            buff_selected = buff_info[ind]
+        elif 'upgrade' in buff_types_info:
+            ind = buff_types_info.index('upgrade')
+            buff_selected = buff_info[ind]
+        elif 'heal' in buff_types_info:
+            ind = buff_types_info.index('heal')
+            buff_selected = buff_info[ind]
+        elif 'choice' in buff_types_info:
+            ind = buff_types_info.index('choice')
+            buff_selected = buff_info[ind]
+        elif 'normal' in buff_types_info:
+            buff_subtypes_info = [info['buff_subtype']
+                                  for ind, info in buff_info.items()]
+            if 'strategy' in buff_subtypes_info:
+                ind = buff_subtypes_info.index('strategy')
+                buff_selected = buff_info[ind]
+            elif 'survival' in buff_subtypes_info:
+                ind = buff_subtypes_info.index('survival')
+                buff_selected = buff_info[ind]
+            else:
+                buff_selected = buff_info[0]
+
+        self.logger.info(f'selected buff {buff_selected}')
+
+        return buff_selected
+
+    def simulation_room_select_buff(self, buff_locs, select_func=None, buff_history=None):
+        if not buff_locs:
+            return False
+        if not select_func:
+            buff_info = {'loc': buff_locs[0]}
+            return buff_info
+        else:
+            buff_info = select_func(buff_locs)
+        return buff_info
+
+    def simulation_room_get_buff_count(self, loc):
+        buff_types = ["boss", "choice", "heal", "normal", "upgrade"]
+        buff_count = 0
+        for buff_type in buff_types:
+            buff_locs = gio.locate_image(self.image_map[f'home_ark_simulation_room_buff_type_{buff_type}'],
+                                         region=loc.to_bounding(), multi=True, multi_threshold=0.5)
+            if buff_locs:
+                buff_count += len(buff_locs)
+        return buff_count
+
+    def simulation_room_get_buff_selection(self):
+        buff_icon_loc = gio.locate_image(self.image_map['home_ark_simulation_room_buff_buff_select_icon'],
+                                         region=self.location_map['home'].to_bounding())
+        if not buff_icon_loc:
+            return False
+
+        three_buff_loc = buff_icon_loc.translate(-118, 181).resize(480, 240)
+
+        buff_count = self.simulation_room_get_buff_count(three_buff_loc)
+        buff_locs = []
+
+        if buff_count == 3:
+            buff_1_loc = three_buff_loc.translate(0, 0).resize(160, 240)
+            buff_2_loc = three_buff_loc.translate(160, 0).resize(160, 240)
+            buff_3_loc = three_buff_loc.translate(320, 0).resize(160, 240)
+            buff_locs = [buff_1_loc, buff_2_loc, buff_3_loc]
+        elif buff_count == 2:
+            buff_1_loc = three_buff_loc.translate(80, 0).resize(160, 240)
+            buff_2_loc = three_buff_loc.translate(240, 0).resize(160, 240)
+            buff_locs = [buff_1_loc, buff_2_loc]
+        elif buff_count == 1:
+            buff_1_loc = three_buff_loc.translate(160, 0).resize(160, 240)
+            buff_locs = [buff_1_loc]
+
+        return buff_locs
+
+    def simulation_room_choose_substitute_buff_simple(self, buff_locations):
+        buff_info = {}
+        buff_locations = sorted(
+            buff_locations, key=lambda item: item.height, reverse=True)
+        return buff_locations[0], buff_info
+
+    def simulation_room_choose_limit_replace_simple(self, buff_locations):
+        buff_info = {}
+        buff_locations = sorted(
+            buff_locations, key=lambda item: item.height, reverse=True)
+        return buff_locations[2], buff_info
+
+    def simulation_room_obtain_buff_choose(self, buff_locations, decision_func=None):
+        if not buff_locations:
+            return None, {}
+        buff_info = {}
+        if not decision_func:
+            return buff_locations[0], buff_info
+        else:
+            buff_location, buff_info = decision_func(buff_locations)
+            return buff_location, buff_info
+
+    def simulation_room_obtain_buff(self, decision_func=None):
+        self.logger.info('selecting the buff to obtain...')
+        buff_locations = self.get_buff_location()
+        buff_location, buff_info = self.simulation_room_obtain_buff_choose(
+            buff_locations, decision_func)
+        if buff_location:
+            gio.mouse_center_click(buff_location)
+            gio.locate_image_and_click(self.image_map['home_ark_simulation_room_buff_confirm'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, timeout=3)
+        else:
+            self.logger.info('cannot choose buff any further')
+            return False
+        return buff_info
+
+    def simulation_room_battle_session(self):
+        quick_battle = gio.locate_image_and_click(self.image_map['home_ark_simulation_room_quick_battle'],
+                                                  region=self.location_map['home'].to_bounding(
+        ),
+            loop=True, timeout=3)
+        if not quick_battle:
+            if not gio.locate_image_and_click(self.image_map['home_ark_simulation_room_battle'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info('could not enter battle')
+                return False
+            self.logger.info('waiting for battle session to end...')
+            if not gio.locate_image_and_click(self.image_map['home_ark_simulation_room_battle_end'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True, delay=10, timeout=18):
+                self.logger.info('could not end battle')
+                return False
+        gio.delay(2)
+        self.logger.info('battle session ended')
+        return True
+
+    def simulation_room_select_buff_secondary_action(self, buff_info):
+        buff_type = buff_info.get('buff_type')
+        if buff_type and buff_type in ['heal', 'choice', 'upgrade']:
+            self.logger.info(
+                f"selecting a secondary action for the buff with buff type {buff_type}")
+            actions = gio.locate_image(self.image_map[f'home_ark_simulation_room_buff_{buff_type}_{buff_type}_icon'],
+                                       region=self.location_map['home'].to_bounding(), multi=True)
+            if not actions:
+                self.logger.warning(
+                    f'could not follow up on buff selection with buff type {buff_type}')
+                gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_buff_cancel'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=3)
+            else:
+                gio.mouse_center_click(actions[0])
+            gio.delay(1)
+            gio.locate_image_and_click(self.image_map[f'confirm'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, timeout=3)
+            gio.delay(1)
+            if buff_type == 'heal':
+                gio.locate_image_and_click(self.image_map[f'confirm'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=5)
+            elif buff_type == 'choice':
+                gio.locate_image_and_click(self.image_map[f'confirm'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=5)
+            elif buff_type == 'upgrade':
+                gio.locate_image_and_click(self.image_map[f'confirm'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=5)
+            return True
+        else:
+            return False
+
+    def simulation_room_single_battle(self, buff_list=[]):
+        buff_locs = self.simulation_room_get_buff_selection()
+        self.logger.info('single simulation battle started...')
+        if buff_locs:
+            self.logger.info('arrvied at challenge selection')
+            buff_info = self.simulation_room_select_buff(
+                buff_locs, select_func=self.simulation_room_select_buff_simple)
+            gio.mouse_center_click(buff_info.get('loc'))
+            buff_obtained = self.simulation_room_select_buff_secondary_action(
+                buff_info)
+
+            battle_end = False
+            if not buff_obtained:
+                battle_end = self.simulation_room_battle_session()
+
+            if not battle_end and not buff_obtained:
+                self.logger.info('battle session failed')
+                return buff_list
+
+        self.logger.info('started selecting buffs')
+
+        buff = None
+        if gio.locate_image_and_click(self.image_map['home_ark_simulation_room_buff_obtain_buff_home'],
+                                      region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=5, button=None):
+            self.logger.info('reached buff select window')
+            buff = self.simulation_room_obtain_buff()
+        elif gio.locate_image_and_click(self.image_map['home_ark_simulation_room_buff_change_buff_home'],
+                                        region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=1, button=None):
+            buff = self.simulation_room_obtain_buff()
+            gio.locate_image_and_click(self.image_map[f'confirm'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, timeout=3)
+        elif gio.locate_image_and_click(self.image_map['home_ark_simulation_room_buff_alter_buff_home'],
+                                        region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=1, button=None):
+            buff = self.simulation_room_obtain_buff()
+            gio.locate_image_and_click(self.image_map[f'confirm'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, timeout=3)
+
+        if gio.locate_image_and_click(self.image_map['home_ark_simulation_room_buff_substitute_buff_home'],
+                                      region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=5, button=None):
+            buff = self.simulation_room_obtain_buff(
+                decision_func=self.simulation_room_choose_substitute_buff_simple)
+            gio.locate_image_and_click(self.image_map[f'confirm'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, timeout=3)
+        elif gio.locate_image_and_click(self.image_map['home_ark_simulation_room_buff_remove_buff_home'],
+                                        region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=1, button=None):
+            buff = self.simulation_room_obtain_buff()
+            gio.locate_image_and_click(self.image_map[f'confirm'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, timeout=3)
+        elif gio.locate_image_and_click(self.image_map['home_ark_simulation_room_buff_limit_replace_buff_home'],
+                                        region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=1, button=None):
+            buff = self.simulation_room_obtain_buff(
+                decision_func=self.simulation_room_choose_limit_replace_simple)
+            gio.locate_image_and_click(self.image_map['confirm'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, timeout=3)
+
+        self.logger.info('buff selection ended')
+
+        if buff:
+            buff_list.append(buff)
+        self.logger.info('single simulation battle ended, moving on...')
+        return buff_list
+
+    def simulation_room_single_run(self, difficulty=5, sector="C", simulation_status='start'):
+        """
+        perform simulation run at the given difficulty and level
+        default at difficulty 5 and sector C
+        """
+
+        # assuming starting at a random point in the game
+        # start a new simulation sesson at the given difficulty and level
         sector = sector.lower()
-        self.logger.info(
-            f'starting simulation run difficulty {difficulty} sector {sector}...')
 
-        if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_level_{difficulty}'],
-                                          region=self.location_map['home'].to_bounding(
-        ),
-                loop=True):
-            self.logger.info(f'Could not find difficulty {difficulty}')
-            return False
+        if simulation_status == 'start':
+            self.logger.info(
+                f'starting simulation run difficulty {difficulty} sector {sector}...')
 
-        if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_sector_{sector}'],
-                                          region=self.location_map['home'].to_bounding(
-        ),
-                loop=True):
-            self.logger.info(f'Could not find sector {difficulty}')
-            return False
+            if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_level_{difficulty}'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info(f'Could not find difficulty {difficulty}')
+                return False
 
-        if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_start_session'],
-                                          region=self.location_map['home'].to_bounding(
-        ),
-                loop=True):
-            self.logger.info(f'Could not start session')
-            return False
+            if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_sector_{sector}'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info(f'Could not find sector {difficulty}')
+                return False
 
+            if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_start_session'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info(f'Could not start session')
+                return False
+
+        # confirm that we are now inside the simulation
         if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_end_session'],
                                           region=self.location_map['home'].to_bounding(
         ),
@@ -1064,12 +1387,59 @@ class Agent:
             self.logger.info(f'Could not load simulation screen')
             return False
 
+        simulation_status = "continue"
+        buff_list = []
+        while simulation_status == "continue":
+            if gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_next_sector'],
+                                          region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True, timeout=3):
+                simulation_status = 'next_sector'
+                break
+            elif gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_end_simulation'],
+                                            region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True, timeout=1):
+                simulation_status = 'end_simulation'
+                gio.locate_image_and_click(self.image_map[f'confirm'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=3)
+                gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_buff_pass'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=3)
+                gio.locate_image_and_click(self.image_map[f'confirm'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=3)
+                gio.locate_image_and_click(self.image_map[f'confirm'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=3)
+                break
+            else:
+                buff_list = self.simulation_room_single_battle(buff_list)
+
         self.logger.info(
             f'Finished simulation run difficulty {difficulty} sector {sector}...')
-        return True
+        return simulation_status
 
-    def simulation_room(self):
+    def simulation_room(self, difficulty=None, sector=None):
+        """
+        perform simulation run
+        should start at the most reasonble level possible
+        """
         self.logger.info('Simulation room started...')
+
+        if not difficulty or not sector:
+            settings = self.routine.get('simulation_room', {}).get('settings')
+            if settings:
+                difficulty = settings.get('difficulty')
+                sector = settings.get('sector')
+            if not difficulty or not sector:
+                difficulty = 1
+                sector = 'A'
 
         # if no shop starting point available exit home
         if not gio.locate_image_and_click(self.image_map['home_ark'],
@@ -1088,7 +1458,7 @@ class Agent:
                     'Could not find ark entrance, session ended')
                 return False
 
-        gio.delay(2)
+        gio.delay(3)
 
         if not gio.locate_image_and_click(self.image_map['home_ark_simulation_room'],
                                           region=self.location_map['home'].to_bounding(
@@ -1101,10 +1471,16 @@ class Agent:
                                           region=self.location_map['home'].to_bounding(
         ),
                 loop=True):
-            self.logger.info('Could start simulation')
+            self.logger.info('Could not start simulation')
             return False
 
-        success = self.simulation_room_single_run()
+        simulation_status = self.simulation_room_single_run(difficulty, sector)
+        while simulation_status and simulation_status != 'end_simulation':
+            simulation_status = self.simulation_room_single_run(
+                simulation_status=simulation_status)
+
+        if not simulation_status:
+            self.logger.info(f'Simulation room ended with errors.')
 
         self.logger.info(f'Simulation room ended.')
         self.exit_to_home()
@@ -1124,7 +1500,8 @@ class Agent:
                         func()
                         break
                     except Exception as e:
-                        self.logger.error(f"While trying daily {i+1} time {r.get('display_name')} the following error occured")
+                        self.logger.error(
+                            f"While trying daily {i+1} time {r.get('display_name')} the following error occured")
                         self.logger.error(e)
 
     def test(self):

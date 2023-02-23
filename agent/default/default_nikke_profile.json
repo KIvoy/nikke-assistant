@@ -2,7 +2,7 @@
     "name": "default profile",
     "desc": "a default template for Nikke helper",
     "routine": {
-        "1": {
+        "claim_outpost_reward": {
             "name": "claim_outpost_reward",
             "display_name": "Claim Outpost Reward",
             "frequency": "daily",
@@ -10,7 +10,7 @@
             "auto": true,
             "settings": {}
         },
-        "2": {
+        "claim_friend_points": {
             "name": "claim_friend_points",
             "display_name": "Claim Outpost Reward",
             "priority": 2,
@@ -18,7 +18,7 @@
             "auto": true,
             "settings": {}
         },
-        "3": {
+        "advise_nikke": {
             "name": "advise_nikke",
             "display_name": "Advise Nikke",
             "priority": 3,
@@ -26,7 +26,7 @@
             "auto": true,
             "settings": {}
         },
-        "4": {
+        "event": {
             "name": "event",
             "display_name": "Repeat Event Levels",
             "priority": 4,
@@ -36,7 +36,7 @@
                 "level_to_repeat": "1-11"
             }
         },
-        "5": {
+        "rookie_arena": {
             "name": "rookie_arena",
             "display_name": "Rookie Arena",
             "priority": 5,
@@ -46,7 +46,7 @@
                 "max_power_gap": 1000
             }
         },
-        "6": {
+        "normal_shop": {
             "name": "normal_shop",
             "display_name": "Normal Shop Free",
             "priority": 6,
@@ -54,20 +54,20 @@
             "auto": true,
             "settings": {}
         },
-        "7": {
+        "claim_nikke_rehab_reward": {
             "name": "claim_nikke_rehab_reward",
             "display_name": "Rehab Reward",
-            "priority": 7,
+            "priority": 8,
             "frequency": "daily",
             "auto": true,
             "settings": {}
         },
-        "8": {
+        "simulation_room": {
             "name": "simulation_room",
             "display_name": "Simulation Room",
             "priority": 7,
             "frequency": "daily",
-            "auto": false,
+            "auto": true,
             "settings": {
                 "difficulty":5,
                 "sector":"C"

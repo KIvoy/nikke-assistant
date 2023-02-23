@@ -214,6 +214,20 @@ def claim_nikke_rehab_reward():
         current_status.set('Stopped claiming Nikke rehab reward.')
 
 
+def simulation_room():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title='Error',
+            message='No active agent found'
+        )
+    else:
+        current_status.set('Running simulation room...\npress DEL to stop')
+        root.update()
+        current_agent.simulation_room()
+        current_status.set('Stopped running simulation room.')
+
+
 def select_game_window():
     global current_agent
     if not current_agent:
@@ -341,7 +355,7 @@ btnLoadSkill = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12,
 btnLoadSkill.grid(row=8, column=1)
 
 btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
+    'ariel', 12, 'bold'), width=20, text="Simulation Room", bg="powder blue", command=simulation_room)
 btnInfChaos.grid(row=8, column=2)
 
 btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
