@@ -72,8 +72,11 @@ class Agent:
         self.NIKKE_PC_SCROLL_CONSTANT = 13
         self.init_location_map()
         self.set_active_window(app_name)
-        self.setup_image_profile()
         self.set_game_settings()
+        if self.settings.get('auto_rescale'):
+            self.resize_to_optimal()
+            self.set_active_window(app_name)
+        self.setup_image_profile()
         return True
 
     def select_active_window(self, app_name=None):
@@ -143,7 +146,7 @@ class Agent:
             if self.settings.get('active_window'):
                 app_name = self.settings.get('active_window')
             else:
-                app_name = "BlueStacks Keymap Overlay"
+                app_name = "NIKKE"
 
         # get all apps open
         app_list = gio.get_available_applications(verbose=True)
@@ -686,6 +689,12 @@ class Agent:
         if not ras:
             self.logger.info('Cannot find settings for rookie arena')
             return None
+
+        if not gio.locate_image(self.image_map['home_ark_arena_rookie_home'],
+                                region=self.location_map['home'].to_bounding(), confidence=0.8):
+            self.logger.info('Not at rookie arena home')
+            return None
+
         self_info = {}
 
         rank_loc = gio.locate_image(self.image_map['home_ark_arena_rookie_star_self'],
@@ -1039,6 +1048,14 @@ class Agent:
         self.logger.info(f'Rehab reward claiming ended.')
         self.exit_to_home()
 
+    def get_valid_buff_location(self, buff_loc_list):
+        valid_buff_loc = []
+        for buff_loc in buff_loc_list:
+            if not gio.exist_image(self.image_map['home_ark_simulation_room_buff_unavailable_buff_home'],
+                                   region=buff_loc.to_bounding(), confidence=0.8):
+                valid_buff_loc.append(buff_loc)
+        return valid_buff_loc
+
     def get_buff_location(self):
         buff_rarity = ['r', 'sr', 'ssr', 'epic']
         buff_size = ['s', 'm', 'l']
@@ -1055,6 +1072,7 @@ class Agent:
         buff_loc_list = gio.non_maximum_suppresion(
             buff_loc_list, threshold=0.1)
         buff_loc_list = [buff_loc.stretch(440) for buff_loc in buff_loc_list]
+        buff_loc_list = self.get_valid_buff_location(buff_loc_list)
         return buff_loc_list
 
     def simulation_room_select_buff_simple(self, buff_locs):
@@ -1174,6 +1192,7 @@ class Agent:
         if not buff_locations:
             return None, {}
         buff_info = {}
+
         if not decision_func:
             return buff_locations[0], buff_info
         else:
@@ -1256,6 +1275,24 @@ class Agent:
                                            region=self.location_map['home'].to_bounding(
                 ),
                     loop=True, timeout=5)
+
+            if gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_buff_unavailable_buff_home'],
+                                          region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True, timeout=2):
+                gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_buff_cancel'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=1)
+
+                gio.locate_image_and_click(self.image_map[f'confirm'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=2)
+                gio.locate_image_and_click(self.image_map[f'confirm'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, timeout=2)
             return True
         else:
             return False
