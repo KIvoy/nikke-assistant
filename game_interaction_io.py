@@ -13,7 +13,7 @@ from types import GeneratorType
 import cv2
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
-
+from charset_normalizer import md__mypyc
 
 class GameInteractionIO:
     bounce_key_delay = 0.07

@@ -8,11 +8,16 @@ import os
 import json
 from threading import *
 
-from nikke_agent import Agent, gio
+from nikke_agent import Agent
+from game_interaction_io import GameInteractionIO as gio
+import admin
 
 current_agent = None
 user_profile = None
 user_profile_path = 'agent\\default\\user_profile.json'
+
+if not admin.isUserAdmin():
+    admin.runAsAdmin()
 
 
 def get_user_profile():
@@ -441,9 +446,6 @@ btnprice.grid(row=10, column=3)
 
 
 if __name__ == "__main__":
-    import admin
-    if not admin.isUserAdmin():
-        admin.runAsAdmin()
     root.lift()
     root.mainloop()
 
