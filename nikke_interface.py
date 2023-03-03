@@ -314,6 +314,44 @@ def select_game_window():
         button.pack()
 
 
+def select_resolution():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title='Error',
+            message='No active agent found'
+        )
+    else:
+        current_status.set('Selecting resolution...\npress DEL to stop')
+        root.update()
+        top = Toplevel(root)
+        top.geometry(app_size)
+        top.title("Select your Nikke resolution")
+        resolution = current_agent.default_real_resolution
+    
+        width_label = Label(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, text="Width", bg="powder blue")
+        width_label.grid(row=0, column=0)
+        width = Text(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, bg="powder blue")
+        width.grid(row=1, column=0)
+        height_label = Label(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, text="Height", bg="powder blue")
+        height_label.grid(row=0, column=1)
+        height = Text(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, bg="powder blue")
+        height.grid(row=1, column=1)
+        
+        width.insert(tk.END, resolution[0])
+        height.insert(tk.END, resolution[1])
+
+        def ok():
+            width_val, height_val = int(width.get("1.0",'end-1c')), int(height.get("1.0",'end-1c'))
+            current_agent.resize([width_val, height_val])
+            current_status.set(
+                f'Set new solution to {width}x{height}')
+            top.destroy()
+
+        button = Button(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, text="OK", bg="powder blue", command=ok)
+        button.grid(row=1, column=3)
+
+
 initialize_agent()
 root = Tk()
 app_size = get_size()
@@ -433,7 +471,7 @@ btnSaveSetting = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
 btnSaveSetting.grid(row=10, column=0)
 
 btnx2 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
+    'ariel', 12, 'bold'), width=20, text="Select Resolution", bg="powder blue", command=select_resolution)
 btnx2.grid(row=10, column=1)
 
 btnx3 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(

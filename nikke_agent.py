@@ -1703,7 +1703,7 @@ class Agent:
                 gio.mouse_center_click(self.location_map['home'])
                 gio.delay(2)
 
-        self.logger.info(f"repeating event {event_type} end")
+        self.logger.info(f"repeating event {event_name} end")
         self.exit_to_home()
         return True
 
