@@ -228,6 +228,49 @@ def simulation_room():
         current_status.set('Stopped running simulation room.')
 
 
+def dispatch():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title='Error',
+            message='No active agent found'
+        )
+    else:
+        current_status.set('Dispatching...\npress DEL to stop')
+        root.update()
+        current_agent.dispatch()
+        current_status.set('Stopped Dispatching.')
+
+
+def claim_daily_mission_reward():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title='Error',
+            message='No active agent found'
+        )
+    else:
+        current_status.set(
+            'Claiming daily mission rewards...\npress DEL to stop')
+        root.update()
+        current_agent.claim_daily_mission_reward()
+        current_status.set('Stopped claiming daily mission rewards.')
+
+
+def repeat_event_level():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title='Error',
+            message='No active agent found'
+        )
+    else:
+        current_status.set('Repeating event levels...\npress DEL to stop')
+        root.update()
+        current_agent.repeat_event_level()
+        current_status.set('Stopped repeating event levels.')
+
+
 def select_game_window():
     global current_agent
     if not current_agent:
@@ -359,25 +402,42 @@ btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
 btnInfChaos.grid(row=8, column=2)
 
 btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
+    'ariel', 12, 'bold'), width=20, text="Dispatch", bg="powder blue", command=dispatch)
 btnx1.grid(row=8, column=3)
+
+
+btnLoadProfile = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
+    'ariel', 12, 'bold'), width=20, text="Repeat Event Level", bg="powder blue", command=repeat_event_level)
+btnLoadProfile.grid(row=9, column=0)
+
+btnLoadSkill = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'),
+                      width=20, text="Daily Mission Reward", bg="powder blue", command=claim_daily_mission_reward)
+btnLoadSkill.grid(row=9, column=1)
+
+btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
+    'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
+btnInfChaos.grid(row=9, column=2)
+
+btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
+    'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
+btnx1.grid(row=9, column=3)
 
 
 btnSaveSetting = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
     'ariel', 12, 'bold'), width=20, text="End Journey", bg="powder blue", command=qexit)
-btnSaveSetting.grid(row=9, column=0)
+btnSaveSetting.grid(row=10, column=0)
 
 btnx2 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
     'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
-btnx2.grid(row=9, column=1)
+btnx2.grid(row=10, column=1)
 
 btnx3 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
     'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
-btnx3.grid(row=9, column=2)
+btnx3.grid(row=10, column=2)
 
 btnprice = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
     'ariel', 12, 'bold'), width=20, text="Save Settings", bg="powder blue", command=save_settings)
-btnprice.grid(row=9, column=3)
+btnprice.grid(row=10, column=3)
 
 
 if __name__ == "__main__":

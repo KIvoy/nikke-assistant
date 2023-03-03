@@ -54,14 +54,6 @@
             "auto": true,
             "settings": {}
         },
-        "claim_nikke_rehab_reward": {
-            "name": "claim_nikke_rehab_reward",
-            "display_name": "Rehab Reward",
-            "priority": 8,
-            "frequency": "daily",
-            "auto": true,
-            "settings": {}
-        },
         "simulation_room": {
             "name": "simulation_room",
             "display_name": "Simulation Room",
@@ -70,8 +62,44 @@
             "auto": true,
             "settings": {
                 "difficulty":5,
-                "sector":"C"
+                "sector":"C",
+                "ignore_clear":false
             }
+        },
+        "dispatch": {
+            "name": "dispatch",
+            "display_name": "Dispatch",
+            "priority": 8,
+            "frequency": "daily",
+            "auto": true,
+            "settings": {
+            }
+        },
+        "claim_daily_mission_reward": {
+            "name": "claim_daily_mission_reward",
+            "display_name": "Claim Daily Mission Reward",
+            "priority": 9,
+            "frequency": "daily",
+            "auto": true,
+            "settings": {
+            }
+        },
+        "repeat_event_level": {
+            "name": "repeat_event_level",
+            "display_name": "Repeat Event Levels",
+            "priority": 10,
+            "frequency": "daily",
+            "auto": false,
+            "settings": {
+            }
+        },
+        "claim_nikke_rehab_reward": {
+            "name": "claim_nikke_rehab_reward",
+            "display_name": "Rehab Reward",
+            "priority": 11,
+            "frequency": "daily",
+            "auto": true,
+            "settings": {}
         }
     },
     "agent_type": "nikke",

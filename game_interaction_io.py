@@ -277,7 +277,6 @@ class GameInteractionIO:
 
     def hold_key(key, hold_time):
         pyautogui.keyDown(key)
-        print('holding %s' % key)
         time.sleep(hold_time)
         pyautogui.keyUp(key)
 
@@ -289,7 +288,6 @@ class GameInteractionIO:
         pyautogui.keyUp(keydown)
 
     def double_click(key):
-        print('double clicking %s' % key)
         pyautogui.keyDown(key)
         time.sleep(GameInteractionIO.bounce_key_delay)
         pyautogui.keyUp(key)
@@ -299,7 +297,6 @@ class GameInteractionIO:
         pyautogui.keyUp(key)
 
     def single_click(key):
-        print('single clicking %s' % key)
         pyautogui.keyDown(key)
         time.sleep(GameInteractionIO.bounce_key_delay)
         pyautogui.keyUp(key)

@@ -271,6 +271,7 @@ class Agent:
 
     def back(self):
         gio.single_click('esc')
+        gio.delay(1)
 
     def exit_to_home(self):
         self.logger.info('Exiting to home...')
@@ -279,26 +280,24 @@ class Agent:
                              self.image_map['home_outpost_express_level_up']]
 
         # click on first available action to exit the outpost express claim panel
-        if gio.locate_image_and_click(potential_actions,
-                                      region=self.location_map['home'].to_bounding(), loop=True, timeout=2):
-            return True
+        gio.locate_image_and_click(potential_actions,
+                                   region=self.location_map['home'].to_bounding(), loop=True, timeout=2)
+
         if gio.locate_image_and_click(self.image_map['home_flash_sale'],
                                       region=self.location_map['home'].to_bounding(), loop=True, timeout=2):
-            if gio.locate_image_and_click(self.image_map['confirm'],
-                                          region=self.location_map['home'].to_bounding(), loop=True, timeout=2):
-                return True
+            gio.locate_image_and_click(self.image_map['confirm'],
+                                       region=self.location_map['home'].to_bounding(), loop=True, timeout=2)
 
-        if gio.locate_image_and_click(self.image_map['back_home'],
-                                      region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
-            return True
-        else:
-            item_list = [self.image_map['home_blabla'],
-                         self.image_map['home_friend'], self.image_map['home_union']]
-            self.focus()
-            while gio.exist_image(item_list, region=self.location_map['home'].to_bounding()) is False:
-                gio.single_click("esc")
-                gio.delay(1)
-            return True
+        gio.locate_image_and_click(self.image_map['back_home'],
+                                   region=self.location_map['home'].to_bounding(), loop=True, timeout=3)
+
+        item_list = [self.image_map['home_blabla'],
+                     self.image_map['home_friend'], self.image_map['home_union']]
+        self.focus()
+        while gio.exist_image(item_list, region=self.location_map['home'].to_bounding()) is False:
+            self.back()
+        self.logger.info('Exited to home succesfully')
+        return True
 
     def scroll(self, scroll_distance=100, direction='down', delay=2, time=1):
         if self.settings['active_window'] == self.NIKKE_PC_WINDOW:
@@ -581,6 +580,9 @@ class Agent:
         self.exit_to_home()
 
     def event(self, event_type="valentine_2023", repeat_level="1-11"):
+        """
+        deprecated old event system
+        """
         self.logger.info(f"repeating event {event_type} start")
         # keep advising nikkes until reaching the stopping condition
         end_session = False
@@ -1381,7 +1383,7 @@ class Agent:
         self.logger.info('single simulation battle ended, moving on...')
         return buff_list
 
-    def simulation_room_single_run(self, difficulty=5, sector="C", simulation_status='start'):
+    def simulation_room_single_run(self, difficulty=5, sector="C", ignore_clear=False, simulation_status='start'):
         """
         perform simulation run at the given difficulty and level
         default at difficulty 5 and sector C
@@ -1408,6 +1410,16 @@ class Agent:
                     loop=True):
                 self.logger.info(f'Could not find sector {difficulty}')
                 return False
+
+            if ignore_clear is False:
+                if gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_simulation_cleared'],
+                                              region=self.location_map['home'].to_bounding(
+                ),
+                        loop=True):
+                    self.logger.info(
+                        f'Sector cleared, ignoring clear is set to false, exiting...')
+                    simulation_status = "end_simulation"
+                    return simulation_status
 
             if not gio.locate_image_and_click(self.image_map[f'home_ark_simulation_room_start_session'],
                                               region=self.location_map['home'].to_bounding(
@@ -1474,9 +1486,11 @@ class Agent:
             if settings:
                 difficulty = settings.get('difficulty')
                 sector = settings.get('sector')
+                ignore_clear = settings.get('ignore_clear')
             if not difficulty or not sector:
                 difficulty = 1
                 sector = 'A'
+                ignore_clear = False
 
         # if no shop starting point available exit home
         if not gio.locate_image_and_click(self.image_map['home_ark'],
@@ -1511,7 +1525,8 @@ class Agent:
             self.logger.info('Could not start simulation')
             return False
 
-        simulation_status = self.simulation_room_single_run(difficulty, sector)
+        simulation_status = self.simulation_room_single_run(
+            difficulty, sector, ignore_clear)
         while simulation_status and simulation_status != 'end_simulation':
             simulation_status = self.simulation_room_single_run(
                 simulation_status=simulation_status)
@@ -1521,6 +1536,176 @@ class Agent:
 
         self.logger.info(f'Simulation room ended.')
         self.exit_to_home()
+
+    def dispatch(self):
+        self.logger.info('Dispatching started...')
+
+        # if no dispatch available exit home
+        if not gio.locate_image_and_click(self.image_map['home_outpost'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            self.logger.info(
+                'Could not find outpost entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_outpost'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info(
+                    'Could not find outpost entrance, session ended')
+                return False
+        if not gio.locate_image_and_click(self.image_map['home_outpost_bulletin'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            self.logger.info(
+                'Could not find dispatch bulletin, exiting home to restart')
+            return False
+        if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_send_all'],
+                                      region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            gio.delay(2)
+            if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_send'],
+                                          region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True, timeout=3):
+
+                self.logger.info('Dispatched all')
+        if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_claim_all'],
+                                      region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            gio.delay(2)
+            if gio.locate_image_and_click(self.image_map['home_outpost_express_reward'],
+                                          region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True, timeout=3):
+
+                self.logger.info('Claimed all reward')
+        self.logger.info('Dispatching ended, exiting home')
+        self.exit_to_home()
+        return True
+
+    def claim_daily_mission_reward(self):
+        self.logger.info('Daily mission reward claiming started...')
+
+        # if no dispatch available exit home
+        if not gio.locate_image_and_click(self.image_map['home_mission'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            self.logger.info(
+                'Could not find outpost entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_mission'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info(
+                    'Could not find outpost entrance, session ended')
+                return False
+        if gio.locate_image_and_click(self.image_map['home_mission_claim_all'],
+                                      region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            gio.delay(1)
+            gio.locate_image_and_click(self.image_map['home_mission_claim_all'],
+                                       region=self.location_map['home'].to_bounding(
+            ), loop=True, timeout=3)
+
+            self.logger.info('Claimed all daily mission reward')
+        self.logger.info('Daily mission reward claiming ended, exiting home')
+        self.exit_to_home()
+        return True
+
+    def get_event_steps(self, event_name):
+        if not event_name:
+            return []
+        event_steps = {k: v for k, v in self.image_map.items()
+                       if f'{event_name}_step' in k}
+        event_steps = dict(sorted(event_steps.items()))
+        return event_steps
+
+    def traverse_steps(self, steps, timeout=5, delay=1, confidence=0.99):
+        for step, step_im in steps.items():
+            if not gio.locate_image_and_click(step_im,
+                                              region=self.location_map['home'].to_bounding(
+                                              ),
+                                              confidence=confidence, loop=True, timeout=timeout):
+                self.scroll()
+                if not gio.locate_image_and_click(step_im,
+                                                  region=self.location_map['home'].to_bounding(
+                                                  ),
+                                                  confidence=confidence, loop=True, timeout=timeout):
+                    self.logger.warning(
+                        f'Could not find {step}')
+                    return False
+            gio.delay(delay)
+        return True
+
+    def repeat_event_level(self, event_name='chainsaw_2023'):
+        self.logger.info('Repeating event level started...')
+
+        # if no dispatch available exit home
+        if not gio.locate_image_and_click(self.image_map['home_event'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            self.logger.info(
+                'Could not find event entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_event'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info(
+                    'Could not find event entrance, session ended')
+                return False
+
+        event_steps = self.get_event_steps(event_name)
+
+        if not event_steps:
+            self.logger.warning(
+                'No available events, check if event images are present')
+            self.exit_to_home()
+            return False
+
+        at_event_start = self.traverse_steps(event_steps)
+
+        if not at_event_start:
+            self.logger.warning('could not repeat event levels')
+            self.exit_to_home()
+            return False
+
+        if not gio.locate_image_and_click(self.image_map[f'home_event_start'],
+                                          region=self.location_map['home'].to_bounding(), loop=True, confidence=0.95):
+            self.logger.warning('could not start event levels')
+            self.exit_to_home()
+            return False
+
+        event_stop = False
+        while not event_stop:
+            gio.locate_image_and_click(self.image_map[f'home_event_restart'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, confidence=0.95, timeout=1, delay=10)
+
+            event_stop = gio.locate_image_and_click(self.image_map[f'home_event_no_restart'],
+                                                    region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, confidence=0.95, timeout=1, delay=10)
+            if event_stop:
+                gio.mouse_center_click(self.location_map['home'])
+                gio.delay(2)
+
+        self.logger.info(f"repeating event {event_type} end")
+        self.exit_to_home()
+        return True
 
     def auto_daily(self, timeout=3):
         self.logger.info(f'starting daily')
