@@ -8,10 +8,6 @@ import numpy as np
 from location_box import LocationBox
 from game_interaction_io import GameInteractionIO as gio
 
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(format=' %(asctime)s - %(levelname)s - %(message)s')
-
 
 class Agent:
     def retry_action(timeout=3, delay=3):
@@ -36,10 +32,11 @@ class Agent:
         profile=None,
         profile_path=None,
         game_settings=None,
-        game_settings_path=None
+        game_settings_path=None,
+        custom_logger=None
     ):
         # set logging
-        self.set_logger()
+        self.set_logger(custom_logger)
 
         # load up the profile
         self.load_profile(profile=profile, profile_path=profile_path)
@@ -57,10 +54,17 @@ class Agent:
         """
         return {k: v for k, v in sorted(unsorted_dict.items(), key=lambda item: item[1][value])}
 
-    def set_logger(self):
-        self.logger = logging.getLogger(
-            '==============NIKKE DEBUGGER=============')
-        self.logger.setLevel(logging.DEBUG)
+    def set_logger(self, custom_logger=None):
+        if not custom_logger:
+            for handler in logging.root.handlers[:]:
+                logging.root.removeHandler(handler)
+            logging.basicConfig(
+                format=' %(asctime)s - %(levelname)s - %(message)s')
+            self.logger = logging.getLogger(
+                '==============NIKKE DEBUGGER=============')
+            self.logger.setLevel(logging.DEBUG)
+        else:
+            self.logger = custom_logger
 
     def initialize_game(self, app_name=None):
         # initialize all features

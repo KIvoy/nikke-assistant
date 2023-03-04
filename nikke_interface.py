@@ -3,11 +3,13 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
+import tkinter.scrolledtext as ScrolledText
 import time
 import os
 import json
+import sys
 from threading import *
-
+import logging
 from nikke_agent import Agent
 from game_interaction_io import GameInteractionIO as gio
 import admin
@@ -18,6 +20,30 @@ user_profile_path = 'agent\\default\\user_profile.json'
 
 if not admin.isUserAdmin():
     admin.runAsAdmin()
+
+
+class TextHandler(logging.Handler):
+    # This class allows you to log to a Tkinter Text or ScrolledText widget
+    # Adapted from Moshe Kaplan: https://gist.github.com/moshekaplan/c425f861de7bbf28ef06
+
+    def __init__(self, text):
+        # run the regular Handler __init__
+        logging.Handler.__init__(self)
+        # Store a reference to the Text it will log to
+        self.text = text
+
+    def emit(self, record):
+        msg = self.format(record)
+
+        def append():
+            self.text.configure(state='normal')
+            self.text.insert(tk.END, msg + '\n')
+            self.text.configure(state='disabled')
+            # Autoscroll to the bottom
+            self.text.yview(tk.END)
+        # This is necessary because we can't modify the Text from other threads
+        self.text.after(0, append)
+        self.text.update()
 
 
 def get_user_profile():
@@ -34,11 +60,12 @@ def save_user_profile():
     current_agent.save_profile()
 
 
-def initialize_agent():
+def initialize_agent(logger=None):
     global current_agent
     get_user_profile()
     if user_profile is not None:
-        current_agent = Agent(profile_path=user_profile.get('profile_path'))
+        current_agent = Agent(profile_path=user_profile.get(
+            'profile_path'), custom_logger=logger)
 
 
 def save_size(event):
@@ -328,31 +355,36 @@ def select_resolution():
         top.geometry(app_size)
         top.title("Select your Nikke resolution")
         resolution = current_agent.default_real_resolution
-    
-        width_label = Label(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, text="Width", bg="powder blue")
+
+        width_label = Label(top, padx=16, pady=8, bd=10, fg="black", font=(
+            'ariel', 12, 'bold'), width=20, text="Width", bg="powder blue")
         width_label.grid(row=0, column=0)
-        width = Text(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, bg="powder blue")
+        width = Text(top, padx=16, pady=8, bd=10, fg="black", font=(
+            'ariel', 12, 'bold'), width=20, bg="powder blue")
         width.grid(row=1, column=0)
-        height_label = Label(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, text="Height", bg="powder blue")
+        height_label = Label(top, padx=16, pady=8, bd=10, fg="black", font=(
+            'ariel', 12, 'bold'), width=20, text="Height", bg="powder blue")
         height_label.grid(row=0, column=1)
-        height = Text(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, bg="powder blue")
+        height = Text(top, padx=16, pady=8, bd=10, fg="black", font=(
+            'ariel', 12, 'bold'), width=20, bg="powder blue")
         height.grid(row=1, column=1)
-        
+
         width.insert(tk.END, resolution[0])
         height.insert(tk.END, resolution[1])
 
         def ok():
-            width_val, height_val = int(width.get("1.0",'end-1c')), int(height.get("1.0",'end-1c'))
+            width_val, height_val = int(
+                width.get("1.0", 'end-1c')), int(height.get("1.0", 'end-1c'))
             current_agent.resize([width_val, height_val])
             current_status.set(
                 f'Set new solution to {width}x{height}')
             top.destroy()
 
-        button = Button(top, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'), width=20, text="OK", bg="powder blue", command=ok)
+        button = Button(top, padx=16, pady=8, bd=10, fg="black", font=(
+            'ariel', 12, 'bold'), width=20, text="OK", bg="powder blue", command=ok)
         button.grid(row=1, column=3)
 
 
-initialize_agent()
 root = Tk()
 app_size = get_size()
 root.geometry(app_size)
@@ -388,7 +420,7 @@ current_status = tk.StringVar()
 current_status.set('status')
 
 lblProfile = Label(Tops, font=('aria', 10, 'bold'), text="Current Profile Loaded \n" +
-                   current_agent.profile_name, fg="steel blue", anchor='w')
+                   (current_agent.profile_name if current_agent else ""), fg="steel blue", anchor='w')
 lblProfile.grid(row=3, column=0)
 
 lblStatus = Label(Tops, font=('aria', 10, 'bold'),
@@ -481,6 +513,19 @@ btnx3.grid(row=10, column=2)
 btnprice = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
     'ariel', 12, 'bold'), width=20, text="Save Settings", bg="powder blue", command=save_settings)
 btnprice.grid(row=10, column=3)
+
+console = ScrolledText.ScrolledText(f1, width=40, state='disabled')
+console.configure(font='TkFixedFont')
+console.grid(row=6, column=4, rowspan=5, columnspan=2, sticky='w')
+
+text_handler = TextHandler(console)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+# Add the handler to logger
+logger = logging.getLogger()
+logger.addHandler(text_handler)
+
+initialize_agent(logger)
 
 
 if __name__ == "__main__":
