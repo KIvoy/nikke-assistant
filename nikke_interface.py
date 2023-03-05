@@ -519,7 +519,8 @@ console.configure(font='TkFixedFont')
 console.grid(row=6, column=4, rowspan=5, columnspan=2, sticky='w')
 
 text_handler = TextHandler(console)
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(filename='app_log.txt',
+                    level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 # Add the handler to logger
 logger = logging.getLogger()
