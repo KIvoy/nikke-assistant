@@ -135,3 +135,4 @@ nikke_interface.conf
 output/
 sign.sh
 scripts.sh
+app_log.txt
