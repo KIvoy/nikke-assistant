@@ -1567,17 +1567,7 @@ class Agent:
             self.logger.info(
                 'Could not find dispatch bulletin, exiting home to restart')
             return False
-        if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_send_all'],
-                                      region=self.location_map['home'].to_bounding(
-        ),
-                loop=True, timeout=3):
-            gio.delay(2)
-            if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_send'],
-                                          region=self.location_map['home'].to_bounding(
-            ),
-                    loop=True, timeout=3):
 
-                self.logger.info('Dispatched all')
         if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_claim_all'],
                                       region=self.location_map['home'].to_bounding(
         ),
@@ -1589,6 +1579,29 @@ class Agent:
                     loop=True, timeout=3):
 
                 self.logger.info('Claimed all reward')
+
+        self.back()
+
+        if not gio.locate_image_and_click(self.image_map['home_outpost_bulletin'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            self.logger.info(
+                'Could not find dispatch bulletin, exiting home to restart')
+            return False
+
+        if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_send_all'],
+                                      region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            gio.delay(2)
+            if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_send'],
+                                          region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True, timeout=3):
+
+                self.logger.info('Dispatched all')
+
         self.logger.info('Dispatching ended, exiting home')
         self.exit_to_home()
         return True
