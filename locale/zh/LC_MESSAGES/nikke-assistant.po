@@ -1,0 +1,265 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version:nikke-assistant 0.1.0"
+"Report-Msgid-Bugs-To:EMAIL@ADDRESS"
+"POT-Creation-Date:2023-03-05 17:51-0500"
+"PO-Revision-Date:YEAR-MO-DA HO:MI+ZONE"
+"Last-Translator:FULL NAME <EMAIL@ADDRESS>"
+"Language-Team:LANGUAGE <LL@li.org>"
+"MIME-Version:1.0"
+"Content-Type:text/plain; charset=utf-8"
+"Content-Transfer-Encoding:8bit"
+"Generated-By:Babel 2.12.1"
+
+#: nikke_interface.py:98
+msgid "Choose Your Profile"
+msgstr "选择您的配置文件"
+#: nikke_interface.py:114
+msgid "Profile Loaded!"
+msgstr "配置文件已加载！"
+#: nikke_interface.py:116
+msgid "incorrect format, please check again"
+msgstr "格式不正确，请重新检查"
+#: nikke_interface.py:123
+msgid "Profile Saved"
+msgstr "配置文件已保存"
+#: nikke_interface.py:124
+msgid "Profile saved successfully!"
+msgstr "配置文件保存成功！"
+#: nikke_interface.py:133 nikke_interface.py:429
+msgid "Current Profile Loaded \n"
+msgstr "当前配置文件已加载\n"
+#: nikke_interface.py:137
+msgid "Status - "
+msgstr "当前进度 -"
+#: nikke_interface.py:144 nikke_interface.py:151 nikke_interface.py:162
+#: nikke_interface.py:176 nikke_interface.py:190 nikke_interface.py:204
+#: nikke_interface.py:218 nikke_interface.py:232 nikke_interface.py:246
+#: nikke_interface.py:260 nikke_interface.py:274 nikke_interface.py:288
+#: nikke_interface.py:303 nikke_interface.py:317 nikke_interface.py:355
+msgid "Error"
+msgstr "错误"
+#: nikke_interface.py:145 nikke_interface.py:163 nikke_interface.py:177
+#: nikke_interface.py:191 nikke_interface.py:205 nikke_interface.py:219
+#: nikke_interface.py:233 nikke_interface.py:247 nikke_interface.py:261
+#: nikke_interface.py:275 nikke_interface.py:289 nikke_interface.py:304
+#: nikke_interface.py:318 nikke_interface.py:356
+msgid "No active agent found"
+msgstr "未找到活跃代理"
+#: nikke_interface.py:152
+msgid ""
+"No valid game screen found. Make sure nothing is blocking the game screen."
+msgstr "找不到有效的游戏画面。确保没有任何东西挡住游戏屏幕。"
+#: nikke_interface.py:155
+msgid "Game Loaded!"
+msgstr "游戏已加载！"
+#: nikke_interface.py:166
+msgid ""
+"Doing dailies...\n"
+"press DEL to stop"
+msgstr ""
+"正在做日常...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:169
+msgid "Stopped doing dailies."
+msgstr "停止做日常。"
+#: nikke_interface.py:180
+msgid ""
+"Claiming outpost rewards...\n"
+"press DEL to stop"
+msgstr ""
+"领取前哨奖励...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:183
+msgid "Stopped claiming outpost rewards."
+msgstr "停止领取前哨奖励。"
+#: nikke_interface.py:194
+msgid ""
+"claiming friendship points...\n"
+"press DEL to stop"
+msgstr ""
+"正在发送友谊点...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:197
+msgid "Stopped claiming friendship points"
+msgstr "停止发送友谊点"
+#: nikke_interface.py:208
+msgid ""
+"Advising Nikkes...\n"
+"press DEL to stop"
+msgstr "咨询妮姬中...\\按 DEL 键停止"
+#: nikke_interface.py:211
+msgid "Stopped advising Nikkes."
+msgstr "停止咨询妮姬。"
+#: nikke_interface.py:222
+msgid ""
+"Battling rookie arena...\n"
+"press DEL to stop"
+msgstr ""
+"新秀竞技场战斗...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:225
+msgid "Stopped battling rookie arena."
+msgstr "停止征战新秀竞技场。"
+#: nikke_interface.py:236
+msgid ""
+"Shopping in normal shop...\n"
+"press DEL to stop"
+msgstr ""
+"在普通商店购物...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:239
+msgid "Stopped shopping in normal shop."
+msgstr "停止在普通商店购物。"
+#: nikke_interface.py:250
+msgid ""
+"Claiming Nikke rehab reward...\n"
+"press DEL to stop"
+msgstr ""
+"正在领取解放奖励...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:253
+msgid "Stopped claiming Nikke rehab reward."
+msgstr "停止领取解放奖励。"
+#: nikke_interface.py:264
+msgid ""
+"Running simulation room...\n"
+"press DEL to stop"
+msgstr ""
+"正在运行模拟室...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:267
+msgid "Stopped running simulation room."
+msgstr "停止运行模拟室。"
+#: nikke_interface.py:278
+msgid ""
+"Dispatching...\n"
+"press DEL to stop"
+msgstr ""
+"正在派遣...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:281
+msgid "Stopped Dispatching."
+msgstr "停止派遣。"
+#: nikke_interface.py:293
+msgid ""
+"Claiming daily mission rewards...\n"
+"press DEL to stop"
+msgstr ""
+"领取每日任务奖励中...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:296
+msgid "Stopped claiming daily mission rewards."
+msgstr "停止领取每日任务奖励。"
+#: nikke_interface.py:307
+msgid ""
+"Repeating event levels...\n"
+"press DEL to stop"
+msgstr ""
+"重复活动关卡中...\n"
+"按 DEL 停止"
+#: nikke_interface.py:310
+msgid "Stopped repeating event levels."
+msgstr "停止重复活动关卡。"
+#: nikke_interface.py:321
+msgid ""
+"Selecting active window...\n"
+"press DEL to stop"
+msgstr ""
+"正在选择活动窗口...\n"
+"按 DEL 停止"
+#: nikke_interface.py:325
+msgid "Select your Nikke application window"
+msgstr "选择您的妮姬应用程序窗口"
+#: nikke_interface.py:326
+msgid "Click on the name below"
+msgstr "点击下面的名字"
+#: nikke_interface.py:328
+msgid "To select your Nikke game window"
+msgstr "选择妮姬游戏窗口"
+#: nikke_interface.py:344
+msgid "Selected {} as the game window"
+msgstr "选择 {} 作为游戏窗口"
+#: nikke_interface.py:359
+msgid ""
+"Selecting resolution...\n"
+"press DEL to stop"
+msgstr ""
+"选择分辨率...\n"
+"按 DEL 键停止"
+#: nikke_interface.py:363
+msgid "Select your Nikke resolution"
+msgstr "选择您的 Nikke 分辨率"
+#: nikke_interface.py:367
+msgid "Width"
+msgstr "宽度"
+#: nikke_interface.py:373
+msgid "Height"
+msgstr "高度"
+#: nikke_interface.py:387
+msgid "Set new solution to {}x{}"
+msgstr "将新分辨率设置为 {}x{}"
+#: nikke_interface.py:391
+msgid "OK"
+msgstr "确认"
+#: nikke_interface.py:398 nikke_interface.py:414
+msgid "Nikke Assistant"
+msgstr "指挥官助理"
+#: nikke_interface.py:423
+msgid "Tip: Press Control-C to stop a running task"
+msgstr "提示：按 Control-C 停止正在运行的任务"
+#: nikke_interface.py:443
+msgid "Load Profile"
+msgstr "加载配置文件"
+#: nikke_interface.py:447
+msgid "Reload Game"
+msgstr "重新加载游戏"
+#: nikke_interface.py:451
+msgid "Auto Daily"
+msgstr "自动日常"
+#: nikke_interface.py:455
+msgid "Select Game Window"
+msgstr "选择游戏窗口"
+#: nikke_interface.py:459
+msgid "Claim Outpost Reward"
+msgstr "领取前哨奖励"
+#: nikke_interface.py:463
+msgid "Claim Friendship Points"
+msgstr "发送友谊积分"
+#: nikke_interface.py:467
+msgid "Advise Nikke"
+msgstr "咨询妮基"
+#: nikke_interface.py:471
+msgid "Rookie arena"
+msgstr "新秀竞技场"
+#: nikke_interface.py:475
+msgid "Normal Shop Free"
+msgstr "普通商店"
+#: nikke_interface.py:479
+msgid "Claim Rehab Reward"
+msgstr "解放奖励"
+#: nikke_interface.py:483
+msgid "Simulation Room"
+msgstr "模拟室"
+#: nikke_interface.py:487
+msgid "Dispatch"
+msgstr "派遣"
+#: nikke_interface.py:492
+msgid "Repeat Event Level"
+msgstr "重复活动关卡"
+#: nikke_interface.py:496
+msgid "Daily Mission Reward"
+msgstr "每日任务奖励"
+#: nikke_interface.py:500 nikke_interface.py:504 nikke_interface.py:517
+msgid "???"
+msgstr "待开放"
+#: nikke_interface.py:509
+msgid "End Journey"
+msgstr "结束旅程"
+#: nikke_interface.py:513
+msgid "Select Resolution"
+msgstr "选择分辨率"
+#: nikke_interface.py:521
+msgid "Save Settings"
+msgstr "保存设置"

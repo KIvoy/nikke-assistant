@@ -134,3 +134,4 @@ dmypy.json
 nikke_interface.conf
 output/
 sign.sh
+scripts.sh

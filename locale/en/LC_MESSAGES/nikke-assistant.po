@@ -1,0 +1,310 @@
+# Translations template for nikke-assistant.
+# Copyright (C) 2023 ORGANIZATION
+# This file is distributed under the same license as the nikke-assistant
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: nikke-assistant 0.1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2023-03-05 17:51-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.12.1\n"
+
+#: nikke_interface.py:98
+msgid "Choose Your Profile"
+msgstr "Choose Your Profile"
+
+#: nikke_interface.py:114
+msgid "Profile Loaded!"
+msgstr "Profile Loaded!"
+
+#: nikke_interface.py:116
+msgid "incorrect format, please check again"
+msgstr "incorrect format, please check again"
+
+#: nikke_interface.py:123
+msgid "Profile Saved"
+msgstr "Profile Saved"
+
+#: nikke_interface.py:124
+msgid "Profile saved successfully!"
+msgstr "Profile saved successfully!"
+
+#: nikke_interface.py:133 nikke_interface.py:429
+msgid "Current Profile Loaded \n"
+msgstr "Current Profile Loaded \n"
+
+#: nikke_interface.py:137
+msgid "Status - "
+msgstr "Status - "
+
+#: nikke_interface.py:144 nikke_interface.py:151 nikke_interface.py:162
+#: nikke_interface.py:176 nikke_interface.py:190 nikke_interface.py:204
+#: nikke_interface.py:218 nikke_interface.py:232 nikke_interface.py:246
+#: nikke_interface.py:260 nikke_interface.py:274 nikke_interface.py:288
+#: nikke_interface.py:303 nikke_interface.py:317 nikke_interface.py:355
+msgid "Error"
+msgstr "Error"
+
+#: nikke_interface.py:145 nikke_interface.py:163 nikke_interface.py:177
+#: nikke_interface.py:191 nikke_interface.py:205 nikke_interface.py:219
+#: nikke_interface.py:233 nikke_interface.py:247 nikke_interface.py:261
+#: nikke_interface.py:275 nikke_interface.py:289 nikke_interface.py:304
+#: nikke_interface.py:318 nikke_interface.py:356
+msgid "No active agent found"
+msgstr "No active agent found"
+
+#: nikke_interface.py:152
+msgid "No valid game screen found. Make sure nothing is blocking the game screen."
+msgstr "No valid game screen found. Make sure nothing is blocking the game screen."
+
+#: nikke_interface.py:155
+msgid "Game Loaded!"
+msgstr "Game Loaded!"
+
+#: nikke_interface.py:166
+msgid ""
+"Doing dailies...\n"
+"press DEL to stop"
+msgstr "Doing dailies...\n press DEL to stop"
+
+#: nikke_interface.py:169
+msgid "Stopped doing dailies."
+msgstr "Stopped doing dailies."
+
+#: nikke_interface.py:180
+msgid ""
+"Claiming outpost rewards...\n"
+"press DEL to stop"
+msgstr "Claiming outpost rewards...\n press DEL to stop"
+
+#: nikke_interface.py:183
+msgid "Stopped claiming outpost rewards."
+msgstr "Stopped claiming outpost rewards."
+
+#: nikke_interface.py:194
+msgid ""
+"claiming friendship points...\n"
+"press DEL to stop"
+msgstr "claiming friendship points...\n press DEL to stop"
+
+#: nikke_interface.py:197
+msgid "Stopped claiming friendship points"
+msgstr "Stopped claiming friendship points"
+
+#: nikke_interface.py:208
+msgid ""
+"Advising Nikkes...\n"
+"press DEL to stop"
+msgstr "Advising Nikkes...\n press DEL to stop"
+
+#: nikke_interface.py:211
+msgid "Stopped advising Nikkes."
+msgstr "Stopped advising Nikkes."
+
+#: nikke_interface.py:222
+msgid ""
+"Battling rookie arena...\n"
+"press DEL to stop"
+msgstr "Battling rookie arena...\n press DEL to stop"
+
+#: nikke_interface.py:225
+msgid "Stopped battling rookie arena."
+msgstr "Stopped battling rookie arena."
+
+#: nikke_interface.py:236
+msgid ""
+"Shopping in normal shop...\n"
+"press DEL to stop"
+msgstr "Shopping in normal shop...\n press DEL to stop"
+
+#: nikke_interface.py:239
+msgid "Stopped shopping in normal shop."
+msgstr "Stopped shopping in normal shop."
+
+#: nikke_interface.py:250
+msgid ""
+"Claiming Nikke rehab reward...\n"
+"press DEL to stop"
+msgstr "Claiming Nikke rehab reward...\n press DEL to stop"
+
+#: nikke_interface.py:253
+msgid "Stopped claiming Nikke rehab reward."
+msgstr "Stopped claiming Nikke rehab reward."
+
+#: nikke_interface.py:264
+msgid ""
+"Running simulation room...\n"
+"press DEL to stop"
+msgstr "Running simulation room...\n press DEL to stop"
+
+#: nikke_interface.py:267
+msgid "Stopped running simulation room."
+msgstr "Stopped running simulation room."
+
+#: nikke_interface.py:278
+msgid ""
+"Dispatching...\n"
+"press DEL to stop"
+msgstr "Dispatching...\n press DEL to stop"
+
+#: nikke_interface.py:281
+msgid "Stopped Dispatching."
+msgstr "Stopped Dispatching."
+
+#: nikke_interface.py:293
+msgid ""
+"Claiming daily mission rewards...\n"
+"press DEL to stop"
+msgstr "Claiming daily mission rewards...\n press DEL to stop"
+
+#: nikke_interface.py:296
+msgid "Stopped claiming daily mission rewards."
+msgstr "Stopped claiming daily mission rewards."
+
+#: nikke_interface.py:307
+msgid ""
+"Repeating event levels...\n"
+"press DEL to stop"
+msgstr "Repeating event levels...\n press DEL to stop"
+
+#: nikke_interface.py:310
+msgid "Stopped repeating event levels."
+msgstr "Stopped repeating event levels."
+
+#: nikke_interface.py:321
+msgid ""
+"Selecting active window...\n"
+"press DEL to stop"
+msgstr "Selecting active window...\n press DEL to stop"
+
+#: nikke_interface.py:325
+msgid "Select your Nikke application window"
+msgstr "Select your Nikke application window"
+
+#: nikke_interface.py:326
+msgid "Click on the name below"
+msgstr "Click on the name below"
+
+#: nikke_interface.py:328
+msgid "To select your Nikke game window"
+msgstr "To select your Nikke game window"
+
+#: nikke_interface.py:344
+msgid "Selected {} as the game window"
+msgstr "Selected {} as the game window"
+
+#: nikke_interface.py:359
+msgid ""
+"Selecting resolution...\n"
+"press DEL to stop"
+msgstr "Selecting resolution...\n press DEL to stop"
+
+#: nikke_interface.py:363
+msgid "Select your Nikke resolution"
+msgstr "Select your Nikke resolution"
+
+#: nikke_interface.py:367
+msgid "Width"
+msgstr "Width"
+
+#: nikke_interface.py:373
+msgid "Height"
+msgstr "Height"
+
+#: nikke_interface.py:387
+msgid "Set new solution to {}x{}"
+msgstr "Set new solution to {}x{}"
+
+#: nikke_interface.py:391
+msgid "OK"
+msgstr "OK"
+
+#: nikke_interface.py:398 nikke_interface.py:414
+msgid "Nikke Assistant"
+msgstr "Nikke Assistant"
+
+#: nikke_interface.py:423
+msgid "Tip: Press Control-C to stop a running task"
+msgstr "Tip: Press Control-C to stop a running task"
+
+#: nikke_interface.py:443
+msgid "Load Profile"
+msgstr "Load Profile"
+
+#: nikke_interface.py:447
+msgid "Reload Game"
+msgstr "Reload Game"
+
+#: nikke_interface.py:451
+msgid "Auto Daily"
+msgstr "Auto Daily"
+
+#: nikke_interface.py:455
+msgid "Select Game Window"
+msgstr "Select Game Window"
+
+#: nikke_interface.py:459
+msgid "Claim Outpost Reward"
+msgstr "Claim Outpost Reward"
+
+#: nikke_interface.py:463
+msgid "Claim Friendship Points"
+msgstr "Claim Friendship Points"
+
+#: nikke_interface.py:467
+msgid "Advise Nikke"
+msgstr "Advise Nikke"
+
+#: nikke_interface.py:471
+msgid "Rookie arena"
+msgstr "Rookie arena"
+
+#: nikke_interface.py:475
+msgid "Normal Shop Free"
+msgstr "Normal Shop Free"
+
+#: nikke_interface.py:479
+msgid "Claim Rehab Reward"
+msgstr "Claim Rehab Reward"
+
+#: nikke_interface.py:483
+msgid "Simulation Room"
+msgstr "Simulation Room"
+
+#: nikke_interface.py:487
+msgid "Dispatch"
+msgstr "Dispatch"
+
+#: nikke_interface.py:492
+msgid "Repeat Event Level"
+msgstr "Repeat Event Level"
+
+#: nikke_interface.py:496
+msgid "Daily Mission Reward"
+msgstr "Daily Mission Reward"
+
+#: nikke_interface.py:500 nikke_interface.py:504 nikke_interface.py:517
+msgid "???"
+msgstr "???"
+
+#: nikke_interface.py:509
+msgid "End Journey"
+msgstr "End Journey"
+
+#: nikke_interface.py:513
+msgid "Select Resolution"
+msgstr "Select Resolution"
+
+#: nikke_interface.py:521
+msgid "Save Settings"
+msgstr "Save Settings"
+

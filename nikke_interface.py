@@ -1,3 +1,6 @@
+import admin
+from game_interaction_io import GameInteractionIO as gio
+from nikke_agent import Agent
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
@@ -10,9 +13,13 @@ import json
 import sys
 from threading import *
 import logging
-from nikke_agent import Agent
-from game_interaction_io import GameInteractionIO as gio
-import admin
+import gettext
+
+localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
+translate = gettext.translation(
+    'nikke-assistant', localedir, languages=['zh'], fallback=True)
+_ = translate.gettext
+
 
 current_agent = None
 user_profile = None
@@ -88,7 +95,7 @@ def select_file():
     )
 
     filename = fd.askopenfilename(
-        title='Choose Your Skill Profile',
+        title=_('Choose Your Profile'),
         initialdir='agent\\default\\',
         filetypes=filetypes)
 
@@ -104,17 +111,17 @@ def select_file():
     update_profile_label(text=current_agent.profile_name)
 
     showinfo(
-        title='Profile Loaded!',
+        title=_('Profile Loaded!'),
         message=(current_agent.profile_name if (current_agent is not None)
-                 else "incorrect format, please check again")
+                 else _("incorrect format, please check again"))
     )
 
 
 def save_settings():
     save_user_profile()
     showinfo(
-        title='Profile Saved',
-        message='Profile saved successfully!'
+        title=_('Profile Saved'),
+        message=_('Profile saved successfully!')
     )
 
 
@@ -123,202 +130,205 @@ def qexit():
 
 
 def update_profile_label(text):
-    lblProfile.configure(text="Current Profile Loaded \n"+text)
+    lblProfile.configure(text=_("Current Profile Loaded \n")+text)
 
 
 def update_status_label(text):
-    lblStatus.configure(text='Status - ' + text)
+    lblStatus.configure(text=_('Status - ') + text)
 
 
 def reload_game():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
         game_found = current_agent.initialize_game()
         if not game_found:
             showinfo(
-                title='Error',
-                message='No valid game screen found. Make sure nothing is blocking the game screen.'
+                title=_('Error'),
+                message=_(
+                    'No valid game screen found. Make sure nothing is blocking the game screen.')
             )
             return False
-        current_status.set('Game Loaded!')
+        current_status.set(_('Game Loaded!'))
 
 
 def auto_daily():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Doing dailies...\npress DEL to stop')
+        current_status.set(_('Doing dailies...\npress DEL to stop'))
         root.update()
         current_agent.auto_daily()
-        current_status.set('Stopped doing dailies.')
+        current_status.set(_('Stopped doing dailies.'))
 
 
 def claim_outpost_reward():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Claiming outpost rewards...\npress DEL to stop')
+        current_status.set(_('Claiming outpost rewards...\npress DEL to stop'))
         root.update()
         current_agent.claim_outpost_reward()
-        current_status.set('Stopped claiming outpost rewards.')
+        current_status.set(_('Stopped claiming outpost rewards.'))
 
 
 def claim_friend_points():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('claiming friendship points...\npress DEL to stop')
+        current_status.set(
+            _('claiming friendship points...\npress DEL to stop'))
         root.update()
         current_agent.claim_friend_points()
-        current_status.set('Stopped claiming friendship points')
+        current_status.set(_('Stopped claiming friendship points'))
 
 
 def advise_nikke():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Advising Nikkes...\npress DEL to stop')
+        current_status.set(_('Advising Nikkes...\npress DEL to stop'))
         root.update()
         current_agent.advise_nikke()
-        current_status.set('Stopped advising Nikkes.')
+        current_status.set(_('Stopped advising Nikkes.'))
 
 
 def rookie_arena():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Battling rookie arena...\npress DEL to stop')
+        current_status.set(_('Battling rookie arena...\npress DEL to stop'))
         root.update()
         current_agent.rookie_arena()
-        current_status.set('Stopped battling rookie arena.')
+        current_status.set(_('Stopped battling rookie arena.'))
 
 
 def normal_shop():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Shopping in normal shop...\npress DEL to stop')
+        current_status.set(_('Shopping in normal shop...\npress DEL to stop'))
         root.update()
         current_agent.normal_shop()
-        current_status.set('Stopped shopping in normal shop.')
+        current_status.set(_('Stopped shopping in normal shop.'))
 
 
 def claim_nikke_rehab_reward():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Claiming Nikke rehab reward...\npress DEL to stop')
+        current_status.set(
+            _('Claiming Nikke rehab reward...\npress DEL to stop'))
         root.update()
         current_agent.claim_nikke_rehab_reward()
-        current_status.set('Stopped claiming Nikke rehab reward.')
+        current_status.set(_('Stopped claiming Nikke rehab reward.'))
 
 
 def simulation_room():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Running simulation room...\npress DEL to stop')
+        current_status.set(_('Running simulation room...\npress DEL to stop'))
         root.update()
         current_agent.simulation_room()
-        current_status.set('Stopped running simulation room.')
+        current_status.set(_('Stopped running simulation room.'))
 
 
 def dispatch():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Dispatching...\npress DEL to stop')
+        current_status.set(_('Dispatching...\npress DEL to stop'))
         root.update()
         current_agent.dispatch()
-        current_status.set('Stopped Dispatching.')
+        current_status.set(_('Stopped Dispatching.'))
 
 
 def claim_daily_mission_reward():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
         current_status.set(
-            'Claiming daily mission rewards...\npress DEL to stop')
+            _('Claiming daily mission rewards...\npress DEL to stop'))
         root.update()
         current_agent.claim_daily_mission_reward()
-        current_status.set('Stopped claiming daily mission rewards.')
+        current_status.set(_('Stopped claiming daily mission rewards.'))
 
 
 def repeat_event_level():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Repeating event levels...\npress DEL to stop')
+        current_status.set(_('Repeating event levels...\npress DEL to stop'))
         root.update()
         current_agent.repeat_event_level()
-        current_status.set('Stopped repeating event levels.')
+        current_status.set(_('Stopped repeating event levels.'))
 
 
 def select_game_window():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Selecting active window...\npress DEL to stop')
+        current_status.set(_('Selecting active window...\npress DEL to stop'))
         root.update()
         top = Toplevel(root)
         top.geometry(app_size)
-        top.title("Select your Nikke application window")
-        Label(top, font=('aria', 10, 'bold'), text="Click on the name below",
+        top.title(_("Select your Nikke application window"))
+        Label(top, font=('aria', 10, 'bold'), text=_("Click on the name below"),
               fg="steel blue", bd=10, anchor='w').pack()
-        Label(top, font=('aria', 10, 'bold'), text="To select your Nikke game window",
+        Label(top, font=('aria', 10, 'bold'), text=_("To select your Nikke game window"),
               fg="steel blue", bd=10, anchor='w').pack()
         apps = gio.get_available_applications()
 
@@ -334,7 +344,7 @@ def select_game_window():
             active_window_name = variable.get()
             current_agent.select_active_window(active_window_name)
             current_status.set(
-                f'Selected {active_window_name} as the game window')
+                _('Selected {} as the game window').format(active_window_name))
             top.destroy()
 
         button = Button(top, text="OK", command=ok)
@@ -345,25 +355,25 @@ def select_resolution():
     global current_agent
     if not current_agent:
         showinfo(
-            title='Error',
-            message='No active agent found'
+            title=_('Error'),
+            message=_('No active agent found')
         )
     else:
-        current_status.set('Selecting resolution...\npress DEL to stop')
+        current_status.set(_('Selecting resolution...\npress DEL to stop'))
         root.update()
         top = Toplevel(root)
         top.geometry(app_size)
-        top.title("Select your Nikke resolution")
+        top.title(_("Select your Nikke resolution"))
         resolution = current_agent.default_real_resolution
 
         width_label = Label(top, padx=16, pady=8, bd=10, fg="black", font=(
-            'ariel', 12, 'bold'), width=20, text="Width", bg="powder blue")
+            'ariel', 12, 'bold'), width=20, text=_("Width"), bg="powder blue")
         width_label.grid(row=0, column=0)
         width = Text(top, padx=16, pady=8, bd=10, fg="black", font=(
             'ariel', 12, 'bold'), width=20, bg="powder blue")
         width.grid(row=1, column=0)
         height_label = Label(top, padx=16, pady=8, bd=10, fg="black", font=(
-            'ariel', 12, 'bold'), width=20, text="Height", bg="powder blue")
+            'ariel', 12, 'bold'), width=20, text=_("Height"), bg="powder blue")
         height_label.grid(row=0, column=1)
         height = Text(top, padx=16, pady=8, bd=10, fg="black", font=(
             'ariel', 12, 'bold'), width=20, bg="powder blue")
@@ -377,18 +387,26 @@ def select_resolution():
                 width.get("1.0", 'end-1c')), int(height.get("1.0", 'end-1c'))
             current_agent.resize([width_val, height_val])
             current_status.set(
-                f'Set new solution to {width}x{height}')
+                _('Set new solution to {}x{}').format(str(width), str(height)))
             top.destroy()
 
         button = Button(top, padx=16, pady=8, bd=10, fg="black", font=(
-            'ariel', 12, 'bold'), width=20, text="OK", bg="powder blue", command=ok)
+            'ariel', 12, 'bold'), width=20, text=_("OK"), bg="powder blue", command=ok)
         button.grid(row=1, column=3)
+
+
+def no_action():
+    showinfo(
+        title=_('No yet released'),
+        message=_('The function is not yet released')
+    )
+    return True
 
 
 root = Tk()
 app_size = get_size()
 root.geometry(app_size)
-root.title("Nikke Helper")
+root.title(_("Nikke Assistant"))
 # root.resizable(False, False)
 root.bind("<Configure>", save_size)
 
@@ -404,7 +422,7 @@ f2.pack(side=RIGHT)
 localtime = time.asctime(time.localtime(time.time()))
 # -----------------INFO TOP------------
 lblinfo = Label(Tops, font=('aria', 30, 'bold'),
-                text="Nikke Helper", fg="steel blue", bd=10, anchor='w')
+                text=_("Nikke Assistant"), fg="steel blue", bd=10, anchor='w')
 lblinfo.grid(row=0, column=0)
 
 lblinfo = Label(Tops, font=('aria', 20, ),
@@ -413,13 +431,13 @@ lblinfo.grid(row=1, column=0)
 
 # --------------------INFO Mid--------------
 lbltip = Label(Tops, font=('aria', 10, 'bold'),
-               text="Tip: Press DEL to stop a running task", fg="steel blue", anchor='w')
+               text=_("Tip: Press Control-C to stop a running task"), fg="steel blue", anchor='w')
 lbltip.grid(row=2, column=0)
 
 current_status = tk.StringVar()
 current_status.set('status')
 
-lblProfile = Label(Tops, font=('aria', 10, 'bold'), text="Current Profile Loaded \n" +
+lblProfile = Label(Tops, font=('aria', 10, 'bold'), text=_("Current Profile Loaded \n") +
                    (current_agent.profile_name if current_agent else ""), fg="steel blue", anchor='w')
 lblProfile.grid(row=3, column=0)
 
@@ -433,85 +451,85 @@ lblTotal.grid(row=5, columnspan=3)
 
 
 btnLoadProfile = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Load Profile", bg="powder blue", command=select_file)
+    'ariel', 12, 'bold'), width=20, text=_("Load Profile"), bg="powder blue", command=select_file)
 btnLoadProfile.grid(row=6, column=0)
 
 btnLoadSkill = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Reload Game", bg="powder blue", command=reload_game)
+    'ariel', 12, 'bold'), width=20, text=_("Reload Game"), bg="powder blue", command=reload_game)
 btnLoadSkill.grid(row=6, column=1)
 
 btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Auto Daily", bg="powder blue", command=auto_daily)
+    'ariel', 12, 'bold'), width=20, text=_("Auto Daily"), bg="powder blue", command=auto_daily)
 btnInfChaos.grid(row=6, column=2)
 
 btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'),
-               width=20, text="Select Game Window", bg="powder blue", command=select_game_window)
+               width=20, text=_("Select Game Window"), bg="powder blue", command=select_game_window)
 btnx1.grid(row=6, column=3)
 
 btnLoadProfile = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Claim Outpost Reward", bg="powder blue", command=claim_outpost_reward)
+    'ariel', 12, 'bold'), width=20, text=_("Claim Outpost Reward"), bg="powder blue", command=claim_outpost_reward)
 btnLoadProfile.grid(row=7, column=0)
 
 btnLoadSkill = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'),
-                      width=20, text="Claim Friendship Points", bg="powder blue", command=claim_friend_points)
+                      width=20, text=_("Claim Friendship Points"), bg="powder blue", command=claim_friend_points)
 btnLoadSkill.grid(row=7, column=1)
 
 btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Advise Nikke", bg="powder blue", command=advise_nikke)
+    'ariel', 12, 'bold'), width=20, text=_("Advise Nikke"), bg="powder blue", command=advise_nikke)
 btnInfChaos.grid(row=7, column=2)
 
 btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'),
-               width=20, text="Rookie arena", bg="powder blue", command=rookie_arena)
+               width=20, text=_("Rookie arena"), bg="powder blue", command=rookie_arena)
 btnx1.grid(row=7, column=3)
 
 btnLoadProfile = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Normal Shop Free", bg="powder blue", command=normal_shop)
+    'ariel', 12, 'bold'), width=20, text=_("Normal Shop Free"), bg="powder blue", command=normal_shop)
 btnLoadProfile.grid(row=8, column=0)
 
 btnLoadSkill = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'),
-                      width=20, text="Claim Rehab Reward", bg="powder blue", command=claim_nikke_rehab_reward)
+                      width=20, text=_("Claim Rehab Reward"), bg="powder blue", command=claim_nikke_rehab_reward)
 btnLoadSkill.grid(row=8, column=1)
 
 btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Simulation Room", bg="powder blue", command=simulation_room)
+    'ariel', 12, 'bold'), width=20, text=_("Simulation Room"), bg="powder blue", command=simulation_room)
 btnInfChaos.grid(row=8, column=2)
 
 btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Dispatch", bg="powder blue", command=dispatch)
+    'ariel', 12, 'bold'), width=20, text=_("Dispatch"), bg="powder blue", command=dispatch)
 btnx1.grid(row=8, column=3)
 
 
 btnLoadProfile = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Repeat Event Level", bg="powder blue", command=repeat_event_level)
+    'ariel', 12, 'bold'), width=20, text=_("Repeat Event Level"), bg="powder blue", command=repeat_event_level)
 btnLoadProfile.grid(row=9, column=0)
 
 btnLoadSkill = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'),
-                      width=20, text="Daily Mission Reward", bg="powder blue", command=claim_daily_mission_reward)
+                      width=20, text=_("Daily Mission Reward"), bg="powder blue", command=claim_daily_mission_reward)
 btnLoadSkill.grid(row=9, column=1)
 
 btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
+    'ariel', 12, 'bold'), width=20, text=_("???"), bg="powder blue", command=no_action)
 btnInfChaos.grid(row=9, column=2)
 
 btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
+    'ariel', 12, 'bold'), width=20, text=_("???"), bg="powder blue", command=no_action)
 btnx1.grid(row=9, column=3)
 
 
 btnSaveSetting = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="End Journey", bg="powder blue", command=qexit)
+    'ariel', 12, 'bold'), width=20, text=_("End Journey"), bg="powder blue", command=qexit)
 btnSaveSetting.grid(row=10, column=0)
 
 btnx2 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Select Resolution", bg="powder blue", command=select_resolution)
+    'ariel', 12, 'bold'), width=20, text=_("Select Resolution"), bg="powder blue", command=select_resolution)
 btnx2.grid(row=10, column=1)
 
 btnx3 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="???", bg="powder blue", command=qexit)
+    'ariel', 12, 'bold'), width=20, text=_("???"), bg="powder blue", command=no_action)
 btnx3.grid(row=10, column=2)
 
 btnprice = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text="Save Settings", bg="powder blue", command=save_settings)
+    'ariel', 12, 'bold'), width=20, text=_("Save Settings"), bg="powder blue", command=save_settings)
 btnprice.grid(row=10, column=3)
 
 console = ScrolledText.ScrolledText(f1, width=40, state='disabled')
