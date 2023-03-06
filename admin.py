@@ -55,7 +55,7 @@ def runAsAdmin(cmdLine=None, wait=True):
     if os.name != 'nt':
         raise RuntimeError("This function is only implemented on Windows.")
     
-    import win32api, win32con, win32event, win32process
+    import win32con, win32event, win32process
     from win32com.shell.shell import ShellExecuteEx
     from win32com.shell import shellcon
     
@@ -77,8 +77,6 @@ def runAsAdmin(cmdLine=None, wait=True):
     # ShellExecute() doesn't seem to allow us to fetch the PID or handle
     # of the process, so we can't get anything useful from it. Therefore
     # the more complex ShellExecuteEx() must be used.
-
-    # procHandle = win32api.ShellExecute(0, lpVerb, cmd, params, cmdDir, showCmd)
 
     procInfo = ShellExecuteEx(nShow=showCmd,
                               fMask=shellcon.SEE_MASK_NOCLOSEPROCESS,
