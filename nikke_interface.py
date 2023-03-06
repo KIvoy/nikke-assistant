@@ -549,6 +549,8 @@ initialize_agent(logger)
 
 if __name__ == "__main__":
     root.lift()
+    root.attributes('-topmost',True)
+    root.after_idle(root.attributes,'-topmost',False)
     root.mainloop()
 
 
