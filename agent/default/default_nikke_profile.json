@@ -1,111 +1,191 @@
 {
     "name": "default profile",
-    "desc": "a default template for Nikke helper",
+    "desc": "a default template for Nikke Assistant",
     "routine": {
         "claim_outpost_reward": {
             "name": "claim_outpost_reward",
-            "display_name": "Claim Outpost Reward",
+            "display_name_en": "Claim Outpost Reward",
+            "display_name_zh": "领取前哨奖励",
             "frequency": "daily",
             "priority": 1,
-            "auto": true,
-            "settings": {}
+            "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                }
+            }
         },
         "claim_friend_points": {
             "name": "claim_friend_points",
-            "display_name": "Claim Outpost Reward",
+            "display_name_en": "Claim Friend Reward",
+            "display_name_zh": "收发友谊点",
             "priority": 2,
             "frequency": "daily",
-            "auto": true,
-            "settings": {}
+            "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                }
+            }
         },
         "advise_nikke": {
             "name": "advise_nikke",
-            "display_name": "Advise Nikke",
+            "display_name_en": "Advise Nikke",
+            "display_name_zh": "咨询妮姬",
             "priority": 3,
             "frequency": "daily",
-            "auto": true,
-            "settings": {}
-        },
-        "event": {
-            "name": "event",
-            "display_name": "Repeat Event Levels",
-            "priority": 4,
-            "frequency": "daily",
-            "auto": false,
             "settings": {
-                "level_to_repeat": "1-11"
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                }
             }
         },
         "rookie_arena": {
             "name": "rookie_arena",
-            "display_name": "Rookie Arena",
+            "display_name_en": "Rookie Arena",
+            "display_name_zh": "新秀竞技场",
             "priority": 5,
             "frequency": "daily",
-            "auto": true,
             "settings": {
-                "max_power_gap": 1000
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                },
+                "max_power_gap": {
+                    "display_name_en": "Max Power Gap",
+                    "display_name_zh": "最大越战力值",
+                    "value": 1000
+                }
             }
         },
         "normal_shop": {
             "name": "normal_shop",
-            "display_name": "Normal Shop Free",
+            "display_name_en": "Normal Shop Free",
+            "display_name_zh": "普通商店",
             "priority": 6,
             "frequency": "daily",
-            "auto": true,
-            "settings": {}
+            "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                }
+            }
         },
         "simulation_room": {
             "name": "simulation_room",
-            "display_name": "Simulation Room",
+            "display_name_en": "Simulation Room",
+            "display_name_zh": "模拟室",
             "priority": 7,
             "frequency": "daily",
-            "auto": true,
             "settings": {
-                "difficulty":5,
-                "sector":"C",
-                "ignore_clear":false
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                },
+                "difficulty": {
+                    "display_name_en": "Difficulty",
+                    "display_name_zh": "起始难度",
+                    "value": 5
+                },
+                "sector": {
+                    "display_name_en": "Sector",
+                    "display_name_zh": "起始地区",
+                    "value": "C"
+                },
+                "ignore_clear": {
+                    "display_name_en": "Ignore Cleared Sector",
+                    "display_name_zh": "打过也重打",
+                    "value": false
+                }
             }
         },
         "dispatch": {
             "name": "dispatch",
-            "display_name": "Dispatch",
+            "display_name_en": "Dispatch",
+            "display_name_zh": "派遣",
             "priority": 8,
             "frequency": "daily",
-            "auto": true,
             "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                }
             }
         },
         "claim_daily_mission_reward": {
             "name": "claim_daily_mission_reward",
-            "display_name": "Claim Daily Mission Reward",
+            "display_name_en": "Claim Daily Mission Reward",
+            "display_name_zh": "每日任务奖励",
             "priority": 9,
             "frequency": "daily",
-            "auto": true,
             "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                }
             }
         },
         "repeat_event_level": {
             "name": "repeat_event_level",
-            "display_name": "Repeat Event Levels",
+            "display_name_en": "Repeat Event Levels",
+            "display_name_zh": "重复活动关卡",
             "priority": 10,
             "frequency": "daily",
-            "auto": false,
             "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": false
+                },
+                "event_name": {
+                    "display_name_en": "Event Name",
+                    "display_name_zh": "活动名",
+                    "tooltip_en": "This is the name of the folder you put all your step screenshots in, should be in images//nikke//home//event_name",
+                    "tooltip_zh": "这里是那个放一步一步截图， 从活动界面到活动开打的文件夹名称， 应该在images//nikke//home//event里",
+                    "value": "chainsaw_2023_feb"
+                }
             }
         },
         "claim_nikke_rehab_reward": {
             "name": "claim_nikke_rehab_reward",
-            "display_name": "Rehab Reward",
+            "display_name_en": "Rehab Reward",
+            "display_name_zh": "解放奖励",
             "priority": 11,
             "frequency": "daily",
-            "auto": true,
-            "settings": {}
+            "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                }
+            }
         }
     },
     "agent_type": "nikke",
     "settings": {
-        "load_to_memory": true,
-        "active_window": "NIKKE",
-        "auto_rescale": true
+        "load_to_memory": {
+            "display_name_en": "Memory Acceleration",
+            "display_name_zh": "内存加速",
+            "value": true
+        },
+        "active_window": {
+            "display_name_en": "Nikke Application Name",
+            "display_name_zh": "游戏窗口名",
+            "value": "NIKKE"
+        },
+        "auto_rescale": {
+            "display_name_en": "Auto Rescale on Start",
+            "display_name_zh": "开局自动调整窗口",
+            "value": true
+        }
     }
 }

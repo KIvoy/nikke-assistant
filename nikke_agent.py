@@ -56,8 +56,6 @@ class Agent:
 
     def set_logger(self, custom_logger=None):
         if not custom_logger:
-            for handler in logging.root.handlers[:]:
-                logging.root.removeHandler(handler)
             logging.basicConfig(
                 format=' %(asctime)s - %(levelname)s - %(message)s')
             self.logger = logging.getLogger(
@@ -77,7 +75,7 @@ class Agent:
         self.init_location_map()
         self.set_active_window(app_name)
         self.set_game_settings()
-        if self.settings.get('auto_rescale'):
+        if self.settings.get('auto_rescale', {}).get('value'):
             self.resize_to_optimal()
             self.set_active_window(app_name)
         self.setup_image_profile()
@@ -85,7 +83,7 @@ class Agent:
 
     def select_active_window(self, app_name=None):
         if not app_name:
-            app_name = self.settings.get('active_window')
+            app_name = self.settings.get('active_window', {}).get('value')
         self.set_active_window(app_name)
         self.setup_image_profile()
         self.set_game_settings()
@@ -116,7 +114,7 @@ class Agent:
                 if file.endswith('.png') or file.endswith('.PNG'):
                     pretty_name = "_".join(os.path.join(
                         sub_dir, file).split('.')[0].split('\\'))
-                    if self.settings['load_to_memory'] is True:
+                    if self.settings.get('load_to_memory', {}).get('value') is True:
                         image_path_dict[pretty_name] = self.resize_image(
                             Image.open(os.path.join(root, file)))
                     else:
@@ -135,9 +133,6 @@ class Agent:
         self.image_map = self.load_image_path(image_path=image_path)
         return True
 
-    def set_parameters(self):
-        self.settings['rookie_arena'] = self.get_rookie_arena_settings()
-
     def init_location_map(self):
         self.location_map = {}
         return True
@@ -147,8 +142,8 @@ class Agent:
         set the current active window info
         """
         if not app_name:
-            if self.settings.get('active_window'):
-                app_name = self.settings.get('active_window')
+            if self.settings.get('active_window', {}).get('value'):
+                app_name = self.settings.get('active_window', {}).get('value')
             else:
                 app_name = "NIKKE"
 
@@ -164,7 +159,7 @@ class Agent:
             return False
         app = app[0]
 
-        self.settings['active_window'] = app_name
+        self.settings['active_window']['value'] = app_name
 
         # record the app location
         app_location = LocationBox(_box=app._rect)
@@ -197,7 +192,7 @@ class Agent:
             profile_path = os.path.join(current_path, default_profile_path)
 
         if not profile:
-            with open(profile_path) as f:
+            with open(profile_path, encoding='utf-8') as f:
                 profile = json.load(f)
 
         self.profile_path = profile_path
@@ -248,17 +243,17 @@ class Agent:
         profile['agent_type'] = self.type
         profile['settings'] = self.settings
 
-        with open(self.profile_path, 'w') as json_file:
-            json.dump(profile, json_file, indent=4)
+        with open(self.profile_path, 'w', encoding='utf-8') as json_file:
+            json.dump(profile, json_file, ensure_ascii=False, indent=4)
         self.logger.info(f'Succesfully saved profile to {self.profile_path}')
 
     def focus(self):
-        return gio.switch_active_application(app_name=self.settings['active_window'], app_loc=self.location_map['home'])
+        return gio.switch_active_application(app_name=self.settings.get('active_window', {}).get('value'), app_loc=self.location_map['home'])
 
     def resize(self, resolution=None):
         if not resolution:
             resolution = self.default_real_resolution
-        gio.resize_application(app_name=self.settings['active_window'],
+        gio.resize_application(app_name=self.settings.get('active_window', {}).get('value'),
                                app_loc=self.location_map['home'],
                                size=resolution)
         self.select_active_window()
@@ -304,7 +299,7 @@ class Agent:
         return True
 
     def scroll(self, scroll_distance=100, direction='down', delay=2, time=1):
-        if self.settings['active_window'] == self.NIKKE_PC_WINDOW:
+        if self.settings['active_window'].get('value') == self.NIKKE_PC_WINDOW:
             time = time*self.NIKKE_PC_SCROLL_CONSTANT
 
         direction_multiplier = 1 if direction == 'up' else -1
@@ -345,8 +340,12 @@ class Agent:
         self.logger.info("claiming outpost reward start")
 
         # click on outpost
-        gio.locate_image_and_click(self.image_map['home_outpost_express'],
-                                   region=self.location_map['home'].to_bounding(), confidence=0.8)
+        if not gio.locate_image_and_click(self.image_map['home_outpost_express'],
+                                          region=self.location_map['home'].to_bounding(), confidence=0.8):
+            if not gio.locate_image_and_click(self.image_map['home_outpost_express_full'],
+                                              region=self.location_map['home'].to_bounding(), confidence=0.8):
+                self.logger.warning('could not locate outpost express')
+                return False
 
         # click on get reward
         gio.locate_image_and_click(self.image_map['home_outpost_express_obtain_reward'],
@@ -1488,9 +1487,9 @@ class Agent:
         if not difficulty or not sector:
             settings = self.routine.get('simulation_room', {}).get('settings')
             if settings:
-                difficulty = settings.get('difficulty')
-                sector = settings.get('sector')
-                ignore_clear = settings.get('ignore_clear')
+                difficulty = settings.get('difficulty', {}).get('value')
+                sector = settings.get('sector', {}).get('value')
+                ignore_clear = settings.get('ignore_clear', {}).get('value')
             if not difficulty or not sector:
                 difficulty = 1
                 sector = 'A'
@@ -1664,8 +1663,16 @@ class Agent:
             gio.delay(delay)
         return True
 
-    def repeat_event_level(self, event_name='chainsaw_2023'):
+    def repeat_event_level(self, event_name=None):
         self.logger.info('Repeating event level started...')
+
+        if not event_name:
+            settings = self.routine.get(
+                'repeat_event_level', {}).get('settings')
+            if settings:
+                event_name = settings.get('event_name', {}).get('value')
+            if not event_name:
+                event_name = "chainsaw_2023_feb"
 
         # if no dispatch available exit home
         if not gio.locate_image_and_click(self.image_map['home_event'],
@@ -1727,11 +1734,11 @@ class Agent:
     def auto_daily(self, timeout=3):
         self.logger.info(f'starting daily')
         self.logger.info(
-            f'{len([r for k, r in self.routine.items() if (r.get("auto") is True and r.get("frequency") == "daily") ])} dailies to run')
+            f'{len([r for k, r in self.routine.items() if (r.get("settings", {}).get("auto", {}).get("value") is True and r.get("frequency") == "daily") ])} dailies to run')
         prioritized_routine = self._sort_dict_by_value(
             self.routine, "priority")
         for key, r in prioritized_routine.items():
-            if r.get("auto") is True and r.get("frequency") == "daily":
+            if r.get("settings", {}).get("auto", {}).get("value") is True and r.get("frequency") == "daily":
                 func = getattr(self, r.get("name"))
                 self.logger.info(f'running daily {r.get("name")}')
                 for i in range(timeout):

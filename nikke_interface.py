@@ -7,6 +7,7 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 import tkinter.scrolledtext as ScrolledText
+from tkinter import Checkbutton
 import time
 import os
 import json
@@ -14,10 +15,23 @@ import sys
 from threading import *
 import logging
 import gettext
+from idlelib.tooltip import Hovertip
+import configparser
 
+
+def read_config():
+    config = configparser.ConfigParser()
+    config.read('NIKKE_ASSISTANT.INI')
+    return config
+
+
+game_config = read_config()
+
+lang = game_config.get('ui_settings', 'lang')
+game_lang = game_config.get('game_settings', 'lang')
 localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
 translate = gettext.translation(
-    'nikke-assistant', localedir, languages=['zh'], fallback=True)
+    'nikke-assistant', localedir, languages=[lang], fallback=True)
 _ = translate.gettext
 
 
@@ -395,6 +409,106 @@ def select_resolution():
         button.grid(row=1, column=3)
 
 
+def change_settings():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title=_('Error'),
+            message=_('No active agent found')
+        )
+    else:
+        current_status.set(_('Changing Settings...\npress DEL to stop'))
+        root.update()
+        root1 = Toplevel(root)
+        root1.geometry(app_size)
+        root1.title(_("Change Settings"))
+        text = ScrolledText.ScrolledText(root1, state='disable')
+        text.pack(fill='both', expand=True)
+
+        top = tk.Frame(text)
+        text.window_create('1.0', window=top)
+
+        row_ind = 0
+        routine_dict = {}
+        settings_dict = {}
+
+        for rkey, routine in current_agent.routine.items():
+            routine_name = Label(top, padx=16, pady=8, bd=10, fg="black", font=(
+                'ariel', 12, 'bold'), width=20, text=routine.get(f'display_name_{lang}'), bg="powder blue")
+            routine_name.grid(row=row_ind, column=0, columnspan=2)
+            row_ind += 1
+            routine_dict[rkey] = {}
+            for skey, setting in routine.get('settings').items():
+                setting_name = Label(top, padx=16, pady=8, bd=10, fg="black", font=(
+                    'ariel', 12, 'bold'), width=20, text=setting.get(f'display_name_{lang}'), bg="powder blue")
+                if isinstance(setting.get('value'), bool):
+                    checkbox_var = IntVar(value=int(setting.get('value')))
+                    setting_value = Checkbutton(top, padx=16, pady=8, bd=10, fg="black", font=(
+                        'ariel', 12, 'bold'), variable=checkbox_var, onvalue=1, offvalue=0, width=20, height=2, bg="powder blue")
+                    routine_dict[rkey][skey] = checkbox_var
+                else:
+                    setting_value = Text(top, padx=16, pady=8, bd=10, fg="black", font=(
+                        'ariel', 12, 'bold'), width=20, height=2, bg="powder blue")
+                    setting_value.insert(tk.END, setting.get('value'))
+                    routine_dict[rkey][skey] = setting_value
+                setting_name.grid(row=row_ind, column=0)
+                setting_value.grid(row=row_ind, column=1)
+                if setting.get('tooltip_{lang}'):
+                    myTip = Hovertip(setting_name, setting.get(
+                        'tooltip_{lang}'), hover_delay=1000)
+                row_ind += 1
+
+        routine_name = Label(top, padx=16, pady=8, bd=10, fg="black", font=(
+            'ariel', 12, 'bold'), width=20, text=_("Settings"), bg="powder blue")
+        routine_name.grid(row=row_ind, column=0, columnspan=2)
+        row_ind += 1
+        for skey, setting in current_agent.settings.items():
+            setting_name = Label(top, padx=16, pady=8, bd=10, fg="black", font=(
+                'ariel', 12, 'bold'), width=20, text=setting.get(f'display_name_{lang}'), bg="powder blue")
+            if isinstance(setting.get('value'), bool):
+                checkbox_var = IntVar(value=int(setting.get('value')))
+                setting_value = Checkbutton(top, padx=16, pady=8, bd=10, fg="black", font=(
+                    'ariel', 12, 'bold'), variable=checkbox_var, onvalue=1, offvalue=0, width=20, height=2, bg="powder blue")
+                settings_dict[skey] = checkbox_var
+            else:
+                setting_value = Text(top, padx=16, pady=8, bd=10, fg="black", font=(
+                    'ariel', 12, 'bold'), width=20, height=2, bg="powder blue")
+                setting_value.insert(tk.END, setting.get('value'))
+                settings_dict[skey] = setting_value
+            setting_name.grid(row=row_ind, column=0)
+            setting_value.grid(row=row_ind, column=1)
+            if setting.get('tooltip_{lang}'):
+                myTip = Hovertip(setting_name, setting.get(
+                    'tooltip_{lang}'), hover_delay=1000)
+            row_ind += 1
+
+        def ok():
+            for rkey, routine in routine_dict.items():
+                for skey, setting_value in routine.items():
+                    if isinstance(current_agent.routine[rkey]['settings'][skey]['value'], bool):
+                        current_agent.routine[rkey]['settings'][skey]['value'] = bool(
+                            setting_value.get())
+                    else:
+                        current_agent.routine[rkey]['settings'][skey]['value'] = type(
+                            current_agent.routine[rkey]['settings'][skey]['value'])(setting_value.get("1.0", 'end-1c'))
+
+            for skey, setting_value in settings_dict.items():
+                if isinstance(current_agent.settings[skey]['value'], bool):
+                    current_agent.settings[skey]['value'] = bool(
+                        setting_value.get())
+                else:
+                    current_agent.settings[skey]['value'] = type(
+                        current_agent.settings[skey]['value'])(setting_value.get("1.0", 'end-1c'))
+
+            current_status.set(
+                _('Settings Changed'))
+            root1.destroy()
+
+        button = Button(top, padx=16, pady=8, bd=10, fg="black", font=(
+            'ariel', 12, 'bold'), width=20, text=_("OK"), bg="powder blue", command=ok)
+        button.grid(row=row_ind, column=3)
+
+
 def no_action():
     showinfo(
         title=_('No yet released'),
@@ -525,7 +639,7 @@ btnx2 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
 btnx2.grid(row=10, column=1)
 
 btnx3 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text=_("???"), bg="powder blue", command=no_action)
+    'ariel', 12, 'bold'), width=20, text=_("Change Settings"), bg="powder blue", command=change_settings)
 btnx3.grid(row=10, column=2)
 
 btnprice = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
@@ -545,12 +659,12 @@ logger = logging.getLogger()
 logger.addHandler(text_handler)
 
 initialize_agent(logger)
-
+console.update()
 
 if __name__ == "__main__":
     root.lift()
-    root.attributes('-topmost',True)
-    root.after_idle(root.attributes,'-topmost',False)
+    root.attributes('-topmost', True)
+    root.after_idle(root.attributes, '-topmost', False)
     root.mainloop()
 
 
