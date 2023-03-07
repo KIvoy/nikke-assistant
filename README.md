@@ -5,7 +5,7 @@ A python desktop app that helps with chores of a commander in Nikke: Godness of 
 - download the zipped release package
 - unzip to your desired location
 - open Nikke: Godness of Victory game application
-- run the nikke-assistant.exe
+- run the NikkeAssistant.exe
 
 ## Running Source Code on Windows
 - have requirments installed from `requirements.txt`
