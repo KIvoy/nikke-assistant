@@ -518,6 +518,7 @@ def no_action():
 
 
 root = Tk()
+root.iconbitmap("./images/nikke_icon.ico")
 app_size = get_size()
 root.geometry(app_size)
 root.title(_("Nikke Assistant"))
