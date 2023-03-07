@@ -1,3 +1,5 @@
+from functools import partial
+from charset_normalizer import md__mypyc
 import pygetwindow as gw
 from location_box import LocationBox
 import re
@@ -13,7 +15,8 @@ from types import GeneratorType
 import cv2
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
-from charset_normalizer import md__mypyc
+ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
+
 
 class GameInteractionIO:
     bounce_key_delay = 0.07
