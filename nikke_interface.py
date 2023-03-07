@@ -1,6 +1,3 @@
-import admin
-from game_interaction_io import GameInteractionIO as gio
-from nikke_agent import Agent
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
@@ -18,8 +15,17 @@ import gettext
 from idlelib.tooltip import Hovertip
 import configparser
 
+import admin
+from game_interaction_io import GameInteractionIO as gio
+from nikke_agent import Agent
+from thread_with_trace import ThreadWithTrace, make_killable_thread
+
 
 def read_config():
+    """
+    helper function to read language settings
+    TODO: move to helper function files
+    """
     config = configparser.ConfigParser()
     config.read('NIKKE_ASSISTANT.INI')
     return config
@@ -180,8 +186,12 @@ def auto_daily():
     else:
         current_status.set(_('Doing dailies...\npress DEL to stop'))
         root.update()
-        current_agent.auto_daily()
-        current_status.set(_('Stopped doing dailies.'))
+
+        def callback():
+            current_agent.auto_daily()
+            current_status.set(_('Stopped doing dailies.'))
+
+        make_killable_thread(callback, current_status, logger)
 
 
 def claim_outpost_reward():
@@ -656,11 +666,10 @@ logging.basicConfig(filename='app_log.txt',
                     level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 # Add the handler to logger
-logger = logging.getLogger()
+logger = logging.getLogger('Nikke Assistant')
 logger.addHandler(text_handler)
 
 initialize_agent(logger)
-console.update()
 
 if __name__ == "__main__":
     root.lift()

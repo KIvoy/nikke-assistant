@@ -27,6 +27,7 @@ httpx==0.13.3
 hyperframe==5.2.0
 idna==2.10
 imageio==2.26.0
+keyboard==0.13.5
 kiwisolver==1.4.4
 lazy_loader==0.1
 matplotlib==3.7.0
