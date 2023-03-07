@@ -5,15 +5,15 @@ from setuptools import setup, find_packages
 
 setup(
     name='nikke-assistant',
-    version='0.1.0',
+    version='1.0',
     packages=find_packages(include=['nikke-assistant', 'nikke-assistant.*'])
 )
 
 [extract_messages]
-input_dir = 'nikke-assistant'
-output_file = 'nikke-assistant/locale/nikke-assistant.pot'
+input_dir = './'
+output_file = './locale/nikke-assistant.pot'
 
 
 [compile_catalog]
-domain = "./"
+domain = "nikke-assistant"
 directory = "./locale"
