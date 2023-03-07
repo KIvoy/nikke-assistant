@@ -28,7 +28,7 @@ A python desktop app that helps with chores of a commander in Nikke: Godness of 
 - you can change the game language and the ui language in `NIKKE_ASSISTANT.INI`
     - so far `en` for English and `zh` for Simplified Chinese
     - support for English client is not yet implemented, you might run into some errors
-    - feel free to create the assets in your language to suppor the corrensponding client.
+    - feel free to create the assets in your language to support the corrensponding client.
 
 ## Releases
 - you can download the latest release in the corresponding release tag
