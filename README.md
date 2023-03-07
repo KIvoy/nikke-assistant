@@ -33,3 +33,9 @@ A python desktop app that helps with chores of a commander in Nikke: Godness of 
 ## Releases
 - you can download the latest release in the corresponding release tag
 
+## Collaboration
+- Highly Welcome! Any contribution is welcome including but exclusive to:
+    - localizations (UI or game client language)
+    - improvement of existing features
+    - reasonable refactoring (god forbid!)
+    - anything that'll make the experience better in general
