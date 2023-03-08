@@ -1,24 +1,23 @@
-from tkinter import *
-import tkinter as tk
-from tkinter import ttk
-from tkinter import filedialog as fd
-from tkinter.messagebox import showinfo
-import tkinter.scrolledtext as ScrolledText
-from tkinter import Checkbutton
-import time
-import os
-import json
-import sys
-from threading import *
-import logging
-import gettext
-from idlelib.tooltip import Hovertip
-import configparser
-
-import admin
-from game_interaction_io import GameInteractionIO as gio
-from nikke_agent import Agent
 from thread_with_trace import ThreadWithTrace, make_killable_thread
+from nikke_agent import Agent
+from game_interaction_io import GameInteractionIO as gio
+import admin
+from idlelib.tooltip import Hovertip
+import gettext
+import logging
+from threading import *
+import json
+import os
+import time
+from tkinter import Checkbutton
+import tkinter.scrolledtext as ScrolledText
+from tkinter.messagebox import showinfo
+from tkinter import filedialog as fd
+from tkinter import ttk
+import tkinter as tk
+from tkinter import *
+import sys
+import configparser
 
 
 def read_config():
@@ -32,6 +31,13 @@ def read_config():
 
 
 game_config = read_config()
+
+# redirect std messages to log files
+log_to_file = bool(game_config.get('app_settings', 'log_to_file'))
+if log_to_file:
+    sys.stdout = open('app_output.log', 'a')
+    sys.stderr = open('app_error.log', 'a')
+
 
 lang = game_config.get('ui_settings', 'lang')
 game_lang = game_config.get('game_settings', 'lang')
