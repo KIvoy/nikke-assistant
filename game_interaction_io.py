@@ -16,6 +16,7 @@ import cv2
 import pytesseract
 import regex
 from difflib import SequenceMatcher
+from helper import read_config
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
@@ -24,21 +25,28 @@ ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 class GameInteractionIO:
     bounce_key_delay = 0.07
     inter_key_delay = 0.1
-    post_action_delay = 1
+    game_config = read_config('NIKKE_ASSISTANT.INI')
+    pre_action_delay = float(game_config.get('app_settings', 'pre_action_delay'))
+    post_action_delay = float(game_config.get('app_settings', 'post_action_delay'))
+    if not pre_action_delay:
+        pre_action_delay=0.5
+    if not post_action_delay:
+        post_action_delay = 0.5
     language = ['en', 'ch_sim']
     reader = Reader(language)
 
-    def post_action_generator(delay):
+    def post_action_generator(pre_delay=0.5, post_delay=0.5):
         def post_action(function):
             @wraps(function)
             def wrapper(*args, **kwargs):
+                GameInteractionIO.delay(pre_delay)
                 retval = function(*args, **kwargs)
-                GameInteractionIO.delay(delay)
+                GameInteractionIO.delay(post_delay)
                 return retval
             return wrapper
         return post_action
 
-    post_action = post_action_generator(post_action_delay)
+    post_action = post_action_generator(pre_action_delay, post_action_delay)
 
     def to_cv2(image):
         return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)

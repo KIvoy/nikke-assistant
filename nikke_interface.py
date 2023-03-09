@@ -17,20 +17,10 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import *
 import sys
-import configparser
+from helper import read_config
 
 
-def read_config():
-    """
-    helper function to read language settings
-    TODO: move to helper function files
-    """
-    config = configparser.ConfigParser()
-    config.read('NIKKE_ASSISTANT.INI')
-    return config
-
-
-game_config = read_config()
+game_config = read_config('NIKKE_ASSISTANT.INI')
 
 # redirect std messages to log files
 log_to_file = bool(game_config.get('app_settings', 'log_to_file'))
