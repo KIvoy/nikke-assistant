@@ -952,7 +952,7 @@ class Agent:
             return False
         gio.delay(2)
         if not gio.locate_image_and_click(self.image_map['home_ark_arena_rookie'],
-                                          region=self.location_map['home'].to_bounding(), loop=True, timeout=3):
+                                          region=self.location_map['home'].to_bounding(), loop=True, timeout=5):
             self.logger.warning(
                 "rookie arena run failed because the rookie area icon is not found")
             return False
@@ -1648,7 +1648,7 @@ class Agent:
         if not gio.locate_image_and_click(self.image_map['home_outpost'],
                                           region=self.location_map['home'].to_bounding(
         ),
-                loop=True, timeout=3):
+                loop=True, timeout=5):
             self.logger.info(
                 'Could not find outpost entrance, exiting home to restart')
             self.exit_to_home()
@@ -1663,7 +1663,7 @@ class Agent:
         if not gio.locate_image_and_click(self.image_map['home_outpost_bulletin'],
                                           region=self.location_map['home'].to_bounding(
         ),
-                loop=True, timeout=3):
+                loop=True, timeout=5):
             self.logger.info(
                 'Could not find dispatch bulletin, exiting home to restart')
             return False
@@ -1671,12 +1671,12 @@ class Agent:
         if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_claim_all'],
                                       region=self.location_map['home'].to_bounding(
         ),
-                loop=True, timeout=3):
+                loop=True, timeout=5):
             gio.delay(2)
             if gio.locate_image_and_click(self.image_map['home_outpost_express_reward'],
                                           region=self.location_map['home'].to_bounding(
             ),
-                    loop=True, timeout=3):
+                    loop=True, timeout=5):
 
                 self.logger.info('Claimed all reward')
 
@@ -1685,7 +1685,7 @@ class Agent:
         if not gio.locate_image_and_click(self.image_map['home_outpost_bulletin'],
                                           region=self.location_map['home'].to_bounding(
         ),
-                loop=True, timeout=3):
+                loop=True, timeout=5):
             self.logger.info(
                 'Could not find dispatch bulletin, exiting home to restart')
             return False
@@ -1693,12 +1693,12 @@ class Agent:
         if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_send_all'],
                                       region=self.location_map['home'].to_bounding(
         ),
-                loop=True, timeout=3):
+                loop=True, timeout=5):
             gio.delay(2)
             if gio.locate_image_and_click(self.image_map['home_outpost_bulletin_send'],
                                           region=self.location_map['home'].to_bounding(
             ),
-                    loop=True, timeout=3):
+                    loop=True, timeout=5):
 
                 self.logger.info('Dispatched all')
 
