@@ -589,7 +589,7 @@ class Agent:
                     choice_location = gio.locate_image(self.image_map['home_advise_choice'],
                                                        region=self.location_map['home'].to_bounding(), multi=True)
                     current_choice = self.advise_nikke_make_choice(
-                        nikke_name=nikke_name, choice_location=choice_location, select_func=advise_nikke_optimal_attraction_points)
+                        nikke_name=nikke_name, choice_location=choice_location, select_func=self.advise_nikke_optimal_attraction_points)
                     gio.mouse_left_click(current_choice.coord())
 
                     # finish the conversation

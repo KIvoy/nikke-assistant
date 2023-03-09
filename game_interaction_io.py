@@ -243,7 +243,7 @@ class GameInteractionIO:
 
     def read_text_line(image_name):
         result = pytesseract.image_to_string(
-            im, config=f'-l chi_sim_best --oem 1 --psm 6').strip().replace(" ", "")
+            image_name, config=f'-l chi_sim_best --oem 1 --psm 6').strip().replace(" ", "")
         return result
 
     def remove_punc_unicode(text):

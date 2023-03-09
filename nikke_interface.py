@@ -34,7 +34,7 @@ game_config = read_config()
 
 # redirect std messages to log files
 log_to_file = bool(game_config.get('app_settings', 'log_to_file'))
-if log_to_file:
+if log_to_file is True:
     sys.stdout = open('app_output.log', 'a')
     sys.stderr = open('app_error.log', 'a')
 
