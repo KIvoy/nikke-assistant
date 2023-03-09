@@ -148,6 +148,14 @@ msgstr ""
 #: nikke_interface.py:281
 msgid "Stopped Dispatching."
 msgstr "停止派遣。"
+msgid ""
+"Running tower...\n"
+"press DEL to stop"
+msgstr ""
+"正在爬塔...\n"
+"按 DEL 键停止"
+msgid "Stopped tower."
+msgstr "停止爬塔。"
 #: nikke_interface.py:293
 msgid ""
 "Claiming daily mission rewards...\n"
@@ -260,6 +268,8 @@ msgstr "每日任务奖励"
 #: nikke_interface.py:500 nikke_interface.py:504 nikke_interface.py:517
 msgid "???"
 msgstr "待开放"
+msgid "Tower"
+msgstr "爬塔"
 #: nikke_interface.py:509
 msgid "End Journey"
 msgstr "结束旅程"

@@ -1832,6 +1832,124 @@ class Agent:
         self.exit_to_home()
         return True
 
+    def tower_battle(self):
+        self.logger.info('entered tower battle session')
+        stage_loc = gio.locate_image(self.image_map['home_ark_tower_stage'],
+                                     region=self.location_map['home'].to_bounding())
+
+        gio.mouse_center_click(stage_loc.stretch(250))
+        gio.delay(2)
+        if not gio.locate_image_and_click(self.image_map['home_ark_tower_battle'],
+                                          region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9, timeout=5):
+            # sometimes the stage doesn't load properly
+            gio.mouse_center_click(stage_loc.stretch(250))
+            if not gio.locate_image_and_click(self.image_map['home_ark_tower_battle'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True, confidence=0.9, timeout=3):
+                self.logger.info('Unable to enter the battle')
+                return False
+
+        self.logger.info('waiting for battle session to end...')
+        battle_stop = False
+        while not battle_stop:
+            gio.locate_image_and_click(self.image_map[f'home_ark_tower_success_next'],
+                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, confidence=0.9, timeout=1, delay=10)
+            battle_stop = gio.locate_image_and_click(self.image_map[f'home_ark_tower_fail_back'],
+                                                     region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, confidence=0.95, timeout=1, delay=1)
+            if battle_stop:
+                self.logger.info('battle session ended')
+                gio.delay(5)
+                gio.locate_image_and_click(self.image_map['back'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, confidence=0.9, timeout=4)
+
+    def tribe_tower(self):
+        self.logger.info('started tribe tower')
+        if not gio.locate_image_and_click(self.image_map['home_ark_tower_tribe_tower_entrance'],
+                                          region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9):
+            self.logger.warning('Could not start tribe tower')
+            return False
+        gio.delay(2)
+        self.tower_battle()
+        self.logger.info('tribe tower ended')
+
+    def company_tower(self):
+        self.logger.info('started company tower')
+        company_tower_loc_list = gio.locate_image(self.image_map['home_ark_tower_attempt_available'],
+                                                  region=self.location_map['home'].to_bounding(), multi=True)
+        if not company_tower_loc_list:
+            self.logger.warning('No open company tower available')
+            return False
+
+        attempts_im = [gio.get_location_image(loc.stretch(
+            20, in_place=True)) for loc in company_tower_loc_list]
+        attempts_count = [int(str(gio.read_number(im))[0])
+                          for im in attempts_im]
+
+        if not attempts_count:
+            self.logger.warning(
+                'Error occured when parsing company tower information')
+            return False
+
+        for ind, count in enumerate(attempts_count):
+            if count > 0:
+                self.logger.info(f'{count} attempts available')
+                gio.mouse_center_click(company_tower_loc_list[ind])
+                gio.delay(2)
+                self.tower_battle()
+
+        self.logger.info('company tower ended')
+
+    def tower(self, tribe=None, company=None):
+        self.logger.info('Tower started...')
+
+        if not gio.locate_image_and_click(self.image_map['home_ark'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                loop=True, timeout=3):
+            self.logger.info(
+                'Could not find ark entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_ark'],
+                                              region=self.location_map['home'].to_bounding(
+            ),
+                    loop=True):
+                self.logger.info(
+                    'Could not find ark entrance, session ended')
+                return False
+
+        if not gio.locate_image_and_click(self.image_map['home_ark_tower'],
+                                          region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9):
+            self.logger.warning('could not start tower')
+            self.exit_to_home()
+            return False
+
+        if tribe is None or company is None:
+            settings = self.routine.get(
+                'tower', {}).get('settings')
+            if settings:
+                tribe = bool(settings.get('tribe', {}).get('value'))
+                company = bool(settings.get('company', {}).get('value'))
+            if tribe is None or company is None:
+                tribe = True
+                company = True
+
+        if tribe is True:
+            self.tribe_tower()
+        if company is True:
+            self.company_tower()
+
+        self.logger.info(f"Tower end")
+        self.exit_to_home()
+        return True
+
     def auto_daily(self, timeout=3):
         self.logger.info(f'starting daily')
         self.logger.info(

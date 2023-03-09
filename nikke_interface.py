@@ -343,6 +343,20 @@ def repeat_event_level():
         current_status.set(_('Stopped repeating event levels.'))
 
 
+def tower():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title=_('Error'),
+            message=_('No active agent found')
+        )
+    else:
+        current_status.set(_('Running tower...\npress DEL to stop'))
+        root.update()
+        current_agent.tower()
+        current_status.set(_('Stopped tower.'))
+
+
 def select_game_window():
     global current_agent
     if not current_agent:
@@ -639,7 +653,7 @@ btnLoadSkill = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12,
 btnLoadSkill.grid(row=9, column=1)
 
 btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text=_("???"), bg="powder blue", command=no_action)
+    'ariel', 12, 'bold'), width=20, text=_("Tower"), bg="powder blue", command=tower)
 btnInfChaos.grid(row=9, column=2)
 
 btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(

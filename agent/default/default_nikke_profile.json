@@ -106,11 +106,35 @@
                 }
             }
         },
+        "tower": {
+            "name": "tower",
+            "display_name_en": "Tower",
+            "display_name_zh": "爬塔",
+            "priority": 8,
+            "frequency": "daily",
+            "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                },
+                "tribe": {
+                    "display_name_en": "Tribe Tower",
+                    "display_name_zh": "无限塔",
+                    "value": true
+                },
+                "company": {
+                    "display_name_en": "Company Tower",
+                    "display_name_zh": "企业塔",
+                    "value": true
+                }
+            }
+        },
         "dispatch": {
             "name": "dispatch",
             "display_name_en": "Dispatch",
             "display_name_zh": "派遣",
-            "priority": 8,
+            "priority": 9,
             "frequency": "daily",
             "settings": {
                 "auto": {
@@ -124,7 +148,7 @@
             "name": "claim_daily_mission_reward",
             "display_name_en": "Claim Daily Mission Reward",
             "display_name_zh": "每日任务奖励",
-            "priority": 9,
+            "priority": 10,
             "frequency": "daily",
             "settings": {
                 "auto": {
@@ -138,7 +162,7 @@
             "name": "repeat_event_level",
             "display_name_en": "Repeat Event Levels",
             "display_name_zh": "重复活动关卡",
-            "priority": 10,
+            "priority": 11,
             "frequency": "daily",
             "settings": {
                 "auto": {
@@ -159,7 +183,7 @@
             "name": "claim_nikke_rehab_reward",
             "display_name_en": "Rehab Reward",
             "display_name_zh": "解放奖励",
-            "priority": 11,
+            "priority": 12,
             "frequency": "daily",
             "settings": {
                 "auto": {
