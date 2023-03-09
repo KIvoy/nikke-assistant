@@ -26,10 +26,12 @@ class GameInteractionIO:
     bounce_key_delay = 0.07
     inter_key_delay = 0.1
     game_config = read_config('NIKKE_ASSISTANT.INI')
-    pre_action_delay = float(game_config.get('app_settings', 'pre_action_delay'))
-    post_action_delay = float(game_config.get('app_settings', 'post_action_delay'))
+    pre_action_delay = float(game_config.get(
+        'app_settings', 'pre_action_delay'))
+    post_action_delay = float(game_config.get(
+        'app_settings', 'post_action_delay'))
     if not pre_action_delay:
-        pre_action_delay=0.5
+        pre_action_delay = 0.5
     if not post_action_delay:
         post_action_delay = 0.5
     language = ['en', 'ch_sim']
