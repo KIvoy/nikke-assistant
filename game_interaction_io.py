@@ -14,6 +14,9 @@ from PIL import Image
 from types import GeneratorType
 import cv2
 import pytesseract
+import regex
+from difflib import SequenceMatcher
+
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
@@ -168,6 +171,31 @@ class GameInteractionIO:
         else:
             return False
 
+    def preprocess_image_text(image, threshold=80):
+        """
+        preprocess a PIL image to make it more visible for text recognition
+        """
+        # resize to best size
+        # image = GameInteractionIO.resize(image, 2)
+
+        # convert to cv2 format
+        image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+        # normalize image
+        normalized = cv2.normalize(image, None, 0, 255, cv2.NORM_MINMAX)
+
+        # invert image if background is black
+        if not GameInteractionIO.is_white_background(normalized, threshold=0.2):
+            normalized = cv2.bitwise_not(normalized)
+
+        # grayscale
+        gray = cv2.cvtColor(normalized, cv2.COLOR_BGR2GRAY)
+
+        # threshold
+        ret, thresh = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
+
+        return thresh
+
     def preprocess_image_number(image, threshold=80):
         """
         preprocess a PIL image to make it more visible for text recognition
@@ -212,6 +240,17 @@ class GameInteractionIO:
         # Read the data
         result = model_name.readtext(frame, detail=detail, paragraph=in_line)
         return result
+
+    def read_text_line(image_name):
+        result = pytesseract.image_to_string(
+            im, config=f'-l chi_sim_best --oem 1 --psm 6').strip().replace(" ", "")
+        return result
+
+    def remove_punc_unicode(text):
+        return regex.sub('[\p{P}\p{Sm}]+', '', text)
+
+    def text_sim_simple(a, b):
+        return SequenceMatcher(None, a, b).ratio()
 
     def _read_number(image, l=0, im_type=6, model_type='digits', threshold=120):
         if l == 0:

@@ -70,6 +70,8 @@ class Agent:
         self.default_real_resolution = [591, 1061]
         self.default_advise_nikke_stretch_length = 250
         self.image_path = 'images'
+        self.table_path = 'tables'
+        self.locale = 'zh'
         self.NIKKE_PC_WINDOW = 'NIKKE'
         self.NIKKE_PC_SCROLL_CONSTANT = 13
         self.init_location_map()
@@ -79,6 +81,7 @@ class Agent:
             self.resize_to_optimal()
             self.set_active_window(app_name)
         self.setup_image_profile()
+        self.setup_table_profile()
         return True
 
     def select_active_window(self, app_name=None):
@@ -131,6 +134,38 @@ class Agent:
 
         image_path = os.path.join(current_path, image_dir_name, agent_dir_name)
         self.image_map = self.load_image_path(image_path=image_path)
+        return True
+
+    def load_table_path(self, table_path):
+        table_path_dict = {}
+
+        for root, dirs, files in os.walk(table_path):
+            if root[-1] != "\\":
+                root = root+"\\"
+            sub_dir = root.replace(table_path+'\\', '')
+            for file in files:
+                if file.endswith('.json'):
+                    pretty_name = "_".join(os.path.join(
+                        sub_dir, file).split('.')[0].split('\\'))
+                    if self.settings.get('load_to_memory', {}).get('value') is True:
+                        with open(os.path.join(root, file), encoding='utf-8') as f:
+                            table_path_dict[pretty_name] = json.load(f)
+                    else:
+                        table_path_dict[pretty_name] = os.path.join(root, file)
+        return table_path_dict
+
+    def setup_table_profile(self):
+        """
+        load the tables
+        """
+        current_path = os.getcwd()
+        table_dir_name = self.table_path
+        agent_dir_name = self.type
+        locale = self.locale
+
+        table_path = os.path.join(
+            current_path, table_dir_name, locale, agent_dir_name)
+        self.table_map = self.load_table_path(table_path=table_path)
         return True
 
     def init_location_map(self):
@@ -417,10 +452,76 @@ class Agent:
 
         return available_advise_session
 
-    def advise_nikke_make_choice(self, nikke_name, choice_location):
+    def advise_nikke_optimal_attraction_points(self, nikke_name, choice_location):
+        """
+        make answers based on best answers
+        return first if either nikke not found or answer not found
+        """
+        if not nikke_name or not choice_location:
+            return False
+
+        if nikke_name not in self.table_map['attractive_counsel_dialog'].keys():
+            self.logger.warning(
+                f'Nikke {nikke_name} is not found, either OCR failure or not available')
+            return choice_location[0]
+
+        # get the options as text
+        dialog_im_list = [gio.get_location_image(
+            choice_loc) for choice_loc in choice_location]
+        dialog_text_list = [gio.read_text_line(im) for im in dialog_im_list]
+
+        # get the favourite answers for the nikke as a list
+        favourite_answers = self.table_map['attractive_counsel_dialog'].get(
+            nikke_name)
+
+        choice_loc = None
+
+        # check if there's exact answers
+        for ind, dialog_text in enumerate(dialog_text_list):
+            if dialog_text in favourite_answers:
+                choice_loc = choice_location[ind]
+                self.logger.info('found exact answer')
+                return choice_loc
+
+        # if no exact answer, drop punctuations and try again
+        if not choice_loc:
+            favourite_answers = [gio.remove_punc_unicode(
+                _) for _ in favourite_answers]
+            dialog_text_list = [gio.remove_punc_unicode(
+                _) for _ in dialog_text_list]
+            for ind, dialog_text in enumerate(dialog_text_list):
+                if dialog_text in favourite_answers:
+                    choice_loc = choice_location[ind]
+                    self.logger.info('found exact answer with no puncs')
+                    return choice_loc
+
+        # if still no answer, find the most similar one
+        if not choice_loc:
+            match_score = []
+            for ind, dialog_text in enumerate(dialog_text_list):
+                match_score.append(
+                    max([gio.text_sim_simple(dialog_text, _) for _ in favourite_answers]))
+            choice_loc = choice_location[match_score.index(max(match_score))]
+            self.logger.info(
+                f'no exact answer found, using the best matched answer with score of {max(match_score)}')
+            return choice_loc
+
+        # if still something went wrong, get the
+        if not choice_loc:
+            choice_loc = choice_location[0]
+            self.logger.info('no answer found, using the default first answer')
+            return choice_loc
+
+    def advise_nikke_make_choice(self, nikke_name, choice_location, select_func=None):
         # TODO: select choice based on lookup table of actual answers
         # this will require a copy of the answer sheet
-        return choice_location[0]
+        self.logger.info(f'selecting advise choice for {nikke_name}...')
+        choice_location = [cl.stretch(
+            400, direction='left', in_place=True) for cl in choice_location]
+        if not select_func:
+            return choice_location[0]
+        else:
+            return select_func(nikke_name, choice_location)
 
     def advise_nikke_single_round(self, nikke_advised={}, nikke_last_round=[]):
         self.logger.info("started a round of advising nikkes")
@@ -488,7 +589,7 @@ class Agent:
                     choice_location = gio.locate_image(self.image_map['home_advise_choice'],
                                                        region=self.location_map['home'].to_bounding(), multi=True)
                     current_choice = self.advise_nikke_make_choice(
-                        nikke_name=nikke_name, choice_location=choice_location)
+                        nikke_name=nikke_name, choice_location=choice_location, select_func=advise_nikke_optimal_attraction_points)
                     gio.mouse_left_click(current_choice.coord())
 
                     # finish the conversation
