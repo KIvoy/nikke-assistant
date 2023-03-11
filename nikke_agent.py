@@ -1857,17 +1857,35 @@ class Agent:
                                        region=self.location_map['home'].to_bounding(
             ),
                 loop=True, confidence=0.9, timeout=1, delay=10)
-            battle_stop = gio.locate_image_and_click(self.image_map[f'home_ark_tower_fail_back'],
+            battle_failed = gio.locate_image_and_click(self.image_map[f'home_ark_tower_fail_back'],
+                                                       region=self.location_map['home'].to_bounding(
+            ),
+                loop=True, confidence=0.95, timeout=1, delay=1)
+
+            battle_stop = gio.locate_image_and_click(self.image_map[f'home_ark_tower_success_stop'],
                                                      region=self.location_map['home'].to_bounding(
             ),
                 loop=True, confidence=0.95, timeout=1, delay=1)
-            if battle_stop:
-                self.logger.info('battle session ended')
+
+            if battle_failed:
+                self.logger.info('battle session ended with defeat')
                 gio.delay(5)
                 gio.locate_image_and_click(self.image_map['back'],
                                            region=self.location_map['home'].to_bounding(
                 ),
                     loop=True, confidence=0.9, timeout=4)
+            elif battle_stop:
+                self.logger.info(
+                    'battle session ended with success, no more session available')
+                gio.delay(5)
+                gio.mouse_center_click(self.location_map['home'])
+                gio.delay(5)
+                gio.locate_image_and_click(self.image_map['back'],
+                                           region=self.location_map['home'].to_bounding(
+                ),
+                    loop=True, confidence=0.9, timeout=4)
+        gio.delay(3)
+        return True
 
     def tribe_tower(self):
         self.logger.info('started tribe tower')
