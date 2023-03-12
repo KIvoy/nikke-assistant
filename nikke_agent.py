@@ -593,9 +593,7 @@ class Agent:
                     gio.mouse_left_click(current_choice.coord())
 
                     # finish the conversation
-                    while gio.locate_image_and_click(self.image_map['home_advise_continue'],
-                                                     region=self.location_map['home'].to_bounding(), confidence=0.7, loop=True, timeout=3):
-                        continue
+                    self.conversation()
                     # back to advise menu
 
                     # if rank up, confirm
@@ -631,18 +629,26 @@ class Agent:
         in_progress = True
         while in_progress:
             in_progress = gio.locate_image_and_click(self.image_map['home_advise_continue'],
-                                                     region=self.location_map['home'].to_bounding(), confidence=0.7, loop=True, timeout=3)
+                                                     region=self.location_map['home'].to_bounding(), confidence=0.8, loop=True, timeout=3)
             if not in_progress:
                 # grab the choices and make one
                 choice_location = gio.locate_image(self.image_map['home_advise_choice'],
-                                                   region=self.location_map['home'].to_bounding(), multi=True)
+                                                   region=self.location_map['home'].to_bounding(), confidence=0.9, multi=True)
                 if choice_location:
                     in_progress = True
+                    current_choice = self.conversation_choice(
+                        choice_location=choice_location)
+                    gio.mouse_left_click(current_choice.coord())
                 else:
                     break
-                current_choice = self.conversation_choice(
-                    choice_location=choice_location)
-                gio.mouse_left_click(current_choice.coord())
+
+                # easly break for conversation in advise nikke
+                if gio.locate_image_and_click(self.image_map['home_advise_advise_unavailable'], region=self.location_map['home'].to_bounding(),
+                                                loop=True, confidence=0.9, timeout=1):
+                    break
+                elif gio.locate_image_and_click(self.image_map['home_advise_rank_up_confirm'],
+                                            region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9, timeout=1):
+                    break
         self.logger.info('conversation ended.')
         return True
 
@@ -1852,7 +1858,8 @@ class Agent:
 
         self.logger.info('waiting for battle session to end...')
         battle_stop = False
-        while not battle_stop:
+        battle_failed = False
+        while not battle_stop and not battle_failed:
             gio.locate_image_and_click(self.image_map[f'home_ark_tower_success_next'],
                                        region=self.location_map['home'].to_bounding(
             ),
