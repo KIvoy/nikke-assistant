@@ -30,12 +30,20 @@ class GameInteractionIO:
         'app_settings', 'pre_action_delay'))
     post_action_delay = float(game_config.get(
         'app_settings', 'post_action_delay'))
+    use_offline_model = bool(game_config.get(
+        'app_settings', 'use_offline_model'))
     if not pre_action_delay:
         pre_action_delay = 0.5
     if not post_action_delay:
         post_action_delay = 0.5
     language = ['en', 'ch_sim']
-    reader = Reader(language)
+    model_path = './EasyOCR/model'
+    if not use_offline_model or use_offline_model is False:
+        print('using online model')
+        reader = Reader(lang_list=language)
+    else:
+        print('using offline model')
+        reader = Reader(lang_list=language, model_storage_directory=model_path, download_enabled=False)
 
     def post_action_generator(pre_delay=0.5, post_delay=0.5):
         def post_action(function):
