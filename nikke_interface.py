@@ -23,7 +23,7 @@ from helper import read_config
 game_config = read_config('NIKKE_ASSISTANT.INI')
 
 # redirect std messages to log files
-log_to_file = bool(game_config.get('app_settings', 'log_to_file'))
+log_to_file = (game_config.get('app_settings', 'log_to_file')=='True')
 if log_to_file is True:
     sys.stdout = open('app_output.log', 'a')
     sys.stderr = open('app_error.log', 'a')

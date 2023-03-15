@@ -573,6 +573,14 @@ class Agent:
                         gio.locate_image_and_click(self.image_map['back'], region=self.location_map['home'].to_bounding(),
                                                    loop=True, timeout=2)
                         continue
+                    if gio.locate_image_and_click(self.image_map['home_advise_max'], region=self.location_map['home'].to_bounding(),
+                                                  loop=True, confidence=0.9, timeout=1):
+                        nikke_advised[nikke_name]['advised'] = True
+                        self.logger.info(
+                            f'Nikke {nikke_name} is at max, skipping to next')
+                        gio.locate_image_and_click(self.image_map['back'], region=self.location_map['home'].to_bounding(),
+                                                   loop=True, timeout=2)
+                        continue
                     # click on the advise button
                     if not gio.locate_image_and_click(self.image_map['home_advise_advise'],
                                                       region=self.location_map['home'].to_bounding(), loop=True):
@@ -629,7 +637,7 @@ class Agent:
         in_progress = True
         while in_progress:
             in_progress = gio.locate_image_and_click(self.image_map['home_advise_continue'],
-                                                     region=self.location_map['home'].to_bounding(), confidence=0.8, loop=True, timeout=3)
+                                                     region=self.location_map['home'].to_bounding(), confidence=0.8, loop=True, timeout=5)
             if not in_progress:
                 # grab the choices and make one
                 choice_location = gio.locate_image(self.image_map['home_advise_choice'],
