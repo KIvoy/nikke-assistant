@@ -30,8 +30,8 @@ class GameInteractionIO:
         'app_settings', 'pre_action_delay'))
     post_action_delay = float(game_config.get(
         'app_settings', 'post_action_delay'))
-    use_offline_model = bool(game_config.get(
-        'app_settings', 'use_offline_model'))
+    use_offline_model = (game_config.get(
+        'app_settings', 'use_offline_model')=='True')
     if not pre_action_delay:
         pre_action_delay = 0.5
     if not post_action_delay:
