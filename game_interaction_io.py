@@ -22,11 +22,12 @@ from helper import read_config
 
 
 if getattr(sys, 'frozen', False):
-    _path = os.path.join(sys._MEIPASS, r'.\\Tesseract-OCR\\tesseract.exe')
-    print(_path)
-    pytesseract.pytesseract.tesseract_cmd =_path
+    tes_path = os.path.join(sys._MEIPASS, r'.\\Tesseract-OCR\\tesseract.exe')
+    print(f"using {tes_path} as tesseract path")
+    pytesseract.pytesseract.tesseract_cmd =tes_path
     # the .exe will look here
 else:
+    print(f"using default path as tesseract path")
     pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
     #ruta donde se encuentre su tresseract
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
