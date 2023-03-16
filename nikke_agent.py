@@ -48,6 +48,9 @@ class Agent:
         # set the active window region
         self.initialize_game(app_name)
 
+    def is_game_active(self):
+        return self.game_active if self.game_active else False
+
     def _sort_dict_by_value(self, unsorted_dict, value):
         """
         helper function to sort a dictionary by the values of it's sub dictionaries
@@ -75,7 +78,9 @@ class Agent:
         self.NIKKE_PC_WINDOW = 'NIKKE'
         self.NIKKE_PC_SCROLL_CONSTANT = 13
         self.init_location_map()
-        self.set_active_window(app_name)
+        self.game_active = False
+        if not self.set_active_window(app_name):
+            return False
         self.set_game_settings()
         if self.settings.get('auto_rescale', {}).get('value'):
             self.resize_to_optimal()
@@ -87,7 +92,8 @@ class Agent:
     def select_active_window(self, app_name=None):
         if not app_name:
             app_name = self.settings.get('active_window', {}).get('value')
-        self.set_active_window(app_name)
+        if not self.set_active_window(app_name):
+            return False
         self.setup_image_profile()
         self.set_game_settings()
         return True
@@ -193,7 +199,6 @@ class Agent:
             self.logger.error('cannot find active game window')
             return False
         app = app[0]
-
         self.settings['active_window']['value'] = app_name
 
         # record the app location
@@ -213,6 +218,7 @@ class Agent:
 
         self.resolution = [app_location.width, app_location.height]
         self.res_multi = self.resolution[1]/self.default_resolution[1]
+        self.game_active = True
         self.logger.info('succesfully detected app window')
         return True
 
@@ -652,10 +658,10 @@ class Agent:
 
                 # easly break for conversation in advise nikke
                 if gio.locate_image_and_click(self.image_map['home_advise_advise_unavailable'], region=self.location_map['home'].to_bounding(),
-                                                loop=True, confidence=0.9, timeout=1):
+                                              loop=True, confidence=0.9, timeout=1):
                     break
                 elif gio.locate_image_and_click(self.image_map['home_advise_rank_up_confirm'],
-                                            region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9, timeout=1):
+                                                region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9, timeout=1):
                     break
         self.logger.info('conversation ended.')
         return True

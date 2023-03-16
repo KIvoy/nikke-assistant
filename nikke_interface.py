@@ -23,7 +23,7 @@ from helper import read_config
 game_config = read_config('NIKKE_ASSISTANT.INI')
 
 # redirect std messages to log files
-log_to_file = (game_config.get('app_settings', 'log_to_file')=='True')
+log_to_file = (game_config.get('app_settings', 'log_to_file') == 'True')
 if log_to_file is True:
     sys.stdout = open('app_output.log', 'a')
     sys.stderr = open('app_error.log', 'a')
@@ -89,6 +89,15 @@ def initialize_agent(logger=None):
     if user_profile is not None:
         current_agent = Agent(profile_path=user_profile.get(
             'profile_path'), custom_logger=logger)
+        game_found = current_agent.is_game_active()
+        if not game_found:
+            showinfo(
+                title=_('Error'),
+                message=_(
+                    'No valid game screen found. Make sure nothing is blocking the game screen.')
+            )
+            return False
+        current_status.set(_('Game Loaded!'))
 
 
 def save_size(event):

@@ -31,7 +31,7 @@ class GameInteractionIO:
     post_action_delay = float(game_config.get(
         'app_settings', 'post_action_delay'))
     use_offline_model = (game_config.get(
-        'app_settings', 'use_offline_model')=='True')
+        'app_settings', 'use_offline_model') == 'True')
     if not pre_action_delay:
         pre_action_delay = 0.5
     if not post_action_delay:
@@ -43,7 +43,8 @@ class GameInteractionIO:
         reader = Reader(lang_list=language)
     else:
         print('using offline model')
-        reader = Reader(lang_list=language, model_storage_directory=model_path, download_enabled=False)
+        reader = Reader(
+            lang_list=language, model_storage_directory=model_path, download_enabled=False)
 
     def post_action_generator(pre_delay=0.5, post_delay=0.5):
         def post_action(function):
