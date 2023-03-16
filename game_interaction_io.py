@@ -15,10 +15,20 @@ from types import GeneratorType
 import cv2
 import pytesseract
 import regex
+import sys
+import os
 from difflib import SequenceMatcher
 from helper import read_config
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+
+if getattr(sys, 'frozen', False):
+    _path = os.path.join(sys._MEIPASS, r'.\\Tesseract-OCR\\tesseract.exe')
+    print(_path)
+    pytesseract.pytesseract.tesseract_cmd =_path
+    # the .exe will look here
+else:
+    pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+    #ruta donde se encuentre su tresseract
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 
