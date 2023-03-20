@@ -647,7 +647,7 @@ class Agent:
             if not in_progress:
                 # grab the choices and make one
                 choice_location = gio.locate_image(self.image_map['home_advise_choice'],
-                                                   region=self.location_map['home'].to_bounding(), confidence=0.9, multi=True)
+                                                   region=self.location_map['home'].to_bounding(), confidence=0.8, multi=True)
                 if choice_location:
                     in_progress = True
                     current_choice = self.conversation_choice(
