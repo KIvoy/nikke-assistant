@@ -57,7 +57,7 @@ If you have any other questions, feel free to go to the [discussion section](htt
 - you can change the game language and the ui language in `NIKKE_ASSISTANT.INI`
     - so far `en` for English and `zh` for Simplified Chinese in terms of UI
     - Only officially supports Simplified Chinese client locale. The support for English client is not yet implemented, you might run into some errors
-    - feel free to create the assets in your language to support the corresponding client.
+    - feel free to create the assets in your language to support the corresponding client (such as images or advise answers).
 
 ## Releases
 - you can download the latest release in the corresponding release tag
