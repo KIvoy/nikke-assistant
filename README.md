@@ -33,7 +33,7 @@ It is very easy to adjust the files to your own levels to repeat ahead of time. 
 
 First, remember that only the Simplified Chinese version of the game is officially supported. If you are using any other locale, there's no guarantee that all of the functions would work! If you really want to use it for your own locale, you can always submit a PR with the mirror assets in your own locale (such as the images and the advise answers).
 
-If you have any other questions, feel free to go to the <url=https://github.com/KIvoy/nikke-assistant/discussions>discussion section 
+If you have any other questions, feel free to go to the [discussion section](https://github.com/KIvoy/nikke-assistant/discussions "Nikke Assistant Discussion") and submit your topic with detailed description, screenshots, app_log and app_error files if raising a bug.
 
 
 ## Running Source Code on Windows
