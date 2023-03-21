@@ -1,3 +1,13 @@
+<div align="center">
+  <p>
+    <a align="center" href="https://github.com/KIvoy/nikke-assistant" target="_blank">
+      <img width="20%" src="https://github.com/KIvoy/nikke-assistant/blob/main/images/nikke_icon.jpg"></a>
+  </p>
+
+[English](README.md) | [简体中文](README.zh-CN.md)
+<br>
+</div>
+
 # Nikke Assistant
 A python desktop app that helps with chores of a commander in Nikke: Godness of Victory
 
