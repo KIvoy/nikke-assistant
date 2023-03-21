@@ -1,10 +1,20 @@
+<div align="center">
+  <p>
+    <a align="center" href="https://github.com/KIvoy/nikke-assistant" target="_blank">
+      <img width="20%" src="https://github.com/KIvoy/nikke-assistant/blob/main/images/nikke_icon.jpg"></a>
+  </p>
+
+[English](README.md) | [简体中文](README.zh-CN.md)
+<br>
+</div>
+
 # 指挥官助理
 
 一个 python 桌面应用程序，可以帮助 Nikke: Goddess of Victory 中的指挥官完成日常
 
 ## 免责声明
 
-Nikke Assistant 软件不参与任何游戏文件、内存或网络流量干扰。它仅使用图像处理和输入模拟来完成不涉及与其他玩家竞争或获得对其他玩家的不公平优势的任务。可以用助手完成的所有事情都可以用玩家手动完成。
+指挥官助理不参与任何游戏文件、内存或网络流量干扰。它仅使用图像处理和输入模拟来完成不涉及与其他玩家竞争或获得对其他玩家的不公平优势的任务。可以用助手完成的所有事情都可以用玩家手动完成。
 
 虽然根据 SU 的历史，您不太可能因使用助手而被禁止，但对于游戏公司因您的使用而可能采取的任何潜在行动，助手概不负责。
 
