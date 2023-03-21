@@ -29,6 +29,12 @@ Although the assistant will be updated every new event, it's only updated based 
 
 It is very easy to adjust the files to your own levels to repeat ahead of time. Simply screenshot all the images you would click from the Events page all the way to the level you want to repeat. Store all those screenshots in `images/nikke/home/event/<your event name>/` and name them in order as `step_1.png`, `step_2.png` etc. You can check out the screenshot examples from previous events in the same directory if you need. In the end, don't forget to change in the settings the event to repeat to <your event name> that you've just created. Now when you click on repeat event levels, it should repeat exactly what you needed.
 
+- <b>My computer is slow, sometimes the loading takes a long time and the assistant does not wait long enough</b>
+
+You can adjust the delays between actions by changing the `pre_action_delay` and `post_action_delay` in `NIKKE_ASSISTANT.INI`. The larger this value, the more delay there are between actions (by seconds). 
+
+You can also set `log_to_file=False` to disable logging for potentially faster assistant. However, you will lose the ability to see error logs if anything happens.
+
 - <b>My issue is not included in the above and I have no idea what's going on</b>
 
 First, remember that only the Simplified Chinese version of the game is officially supported. If you are using any other locale, there's no guarantee that all of the functions would work! If you really want to use it for your own locale, you can always submit a PR with the mirror assets in your own locale (such as the images and the advise answers).
