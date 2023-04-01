@@ -1156,37 +1156,39 @@ class Agent:
         A daily shopping session to buy free material at the paid shop
         """
         self.logger.info('Paid shop session started...')
-
-        # if no shop starting point available exit home
-        if not gio.locate_image_and_click(self.image_map['home_paid_shop'], region=self.location_map['home'].to_bounding()):
-            self.logger.info(
-                'Could not find shop entrance, exiting home to restart')
-            self.exit_to_home()
-            # if still no shop detected, return false
+        shop_session = True
+        while shop_session:
+            # if no shop starting point available exit home
             if not gio.locate_image_and_click(self.image_map['home_paid_shop'], region=self.location_map['home'].to_bounding()):
-                self.logger.info('Could not find shop entrance, session ended')
-                return False
+                self.logger.info(
+                    'Could not find shop entrance, exiting home to restart')
+                self.exit_to_home()
+                # if still no shop detected, return false
+                if not gio.locate_image_and_click(self.image_map['home_paid_shop'], region=self.location_map['home'].to_bounding()):
+                    self.logger.info('Could not find shop entrance, session ended')
+                    break
+            gio.delay(2)
+            item_available = False
+            items_shopped = 0
+            if not gio.locate_image_and_click(self.image_map['home_paid_shop_normal_bundle'], region=self.location_map['home'].to_bounding()):
+                self.logger.info(
+                    'Could not find normal bundle entrance, session ended')
+                break
+            bundle_types = ['daily', 'weekly', 'monthly']
+            scrollbar_loc = gio.locate_image(
+                self.image_map[f'home_paid_shop_normal_bundle_{bundle_types[0]}'], region=self.location_map['home'].to_bounding())
+            if not scrollbar_loc:
+                self.logger.info(
+                    f'Could not find normal {bundle_types[0]} bundle, exiting paid shop session')
+                break
+            for bundle_type in bundle_types:
+                item_available = self.paid_shop_buy_bundle(
+                    bundle_type=bundle_type, scrollbar_loc=scrollbar_loc)
+                items_shopped += 1 if item_available else 0
 
-        item_available = False
-        items_shopped = 0
-        if not gio.locate_image_and_click(self.image_map['home_paid_shop_normal_bundle'], region=self.location_map['home'].to_bounding()):
             self.logger.info(
-                'Could not find normal bundle entrance, session ended')
-            return False
-        bundle_types = ['daily', 'weekly', 'monthly']
-        scrollbar_loc = gio.locate_image(
-            self.image_map[f'home_paid_shop_normal_bundle_{bundle_types[0]}'], region=self.location_map['home'].to_bounding())
-        if not scrollbar_loc:
-            self.logger.info(
-                f'Could not find normal {bundle_types[0]} bundle, exiting paid shop session')
-            return False
-        for bundle_type in bundle_types:
-            item_available = self.paid_shop_buy_bundle(
-                bundle_type=bundle_type, scrollbar_loc=scrollbar_loc)
-            items_shopped += 1 if item_available else 0
-
-        self.logger.info(
-            f'Paid shop shopping session ended. Bought in total of {items_shopped} items.')
+                f'Paid shop shopping session ended. Bought in total of {items_shopped} items.')
+            shop_session = False
         self.exit_to_home()
 
     def claim_nikke_rehab_reward_single_session(self):
