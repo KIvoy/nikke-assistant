@@ -77,6 +77,20 @@
                 }
             }
         },
+        "paid_shop": {
+            "name": "paid_shop",
+            "display_name_en": "Paid Shop Free",
+            "display_name_zh": "付费商店",
+            "priority": 6,
+            "frequency": "daily",
+            "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                }
+            }
+        },
         "simulation_room": {
             "name": "simulation_room",
             "display_name_en": "Simulation Room",
