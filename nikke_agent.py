@@ -1165,7 +1165,8 @@ class Agent:
                 self.exit_to_home()
                 # if still no shop detected, return false
                 if not gio.locate_image_and_click(self.image_map['home_paid_shop'], region=self.location_map['home'].to_bounding()):
-                    self.logger.info('Could not find shop entrance, session ended')
+                    self.logger.info(
+                        'Could not find shop entrance, session ended')
                     break
             gio.delay(3)
             item_available = False
