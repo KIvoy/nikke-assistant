@@ -24,12 +24,12 @@ from helper import read_config
 if getattr(sys, 'frozen', False):
     tes_path = os.path.join(sys._MEIPASS, r'.\\Tesseract-OCR\\tesseract.exe')
     print(f"using {tes_path} as tesseract path")
-    pytesseract.pytesseract.tesseract_cmd =tes_path
+    pytesseract.pytesseract.tesseract_cmd = tes_path
     # the .exe will look here
 else:
     print(f"using default path as tesseract path")
     pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
-    #ruta donde se encuentre su tresseract
+    # use default local path
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 
@@ -88,7 +88,11 @@ class GameInteractionIO:
                 *GameInteractionIO.get_image_center(app_loc))
         app = [app for app in app_list if app.title == app_name][0]
         if app:
-            app.activate()
+            try:
+                app.activate()
+            except:
+                app.minimize()
+                app.restore()
         else:
             return False
         return True
@@ -377,6 +381,13 @@ class GameInteractionIO:
         pyautogui.scroll(distance)
         time.sleep(GameInteractionIO.inter_key_delay)
 
+    def click_and_drag(location, direction=None, dest_coord=None, button='left', duration=2):
+        src_coord = GameInteractionIO.move_to_image_location(location)
+        if direction:
+            pyautogui.drag(*direction, button=button, duration=duration)
+        elif dest_coord:
+            pyautogui.dragTo(*dest_coord, button=button, duration=duration)
+
     def mouse_right_click(cursor_coord=[None, None]):
         pyautogui.click(*cursor_coord, clicks=1, interval=1, button='right')
 
@@ -588,6 +599,7 @@ class GameInteractionIO:
             image_cord[0] += location.width//2
             image_cord[1] += location.height//2
         pyautogui.moveTo(*image_cord)
+        return image_cord
 
     def get_direction(source_location, destination_location):
         source_center = GameInteractionIO.get_image_center(source_location)

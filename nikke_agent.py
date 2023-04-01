@@ -76,7 +76,7 @@ class Agent:
         self.table_path = 'tables'
         self.locale = 'zh'
         self.NIKKE_PC_WINDOW = 'NIKKE'
-        self.NIKKE_PC_SCROLL_CONSTANT = 13
+        self.NIKKE_PC_SCROLL_CONSTANT = 1
         self.init_location_map()
         self.game_active = False
         if not self.set_active_window(app_name):
@@ -215,6 +215,10 @@ class Agent:
                                                                       ).translate(-edge_width, 0)
 
         self.location_map['home'] = app_location
+        # the location of the event window
+        # TODO: make the resolution scalable
+        self.location_map['event'] = app_location.stretch(
+            -285, axis=1).translate(0, 200)
 
         self.resolution = [app_location.width, app_location.height]
         self.res_multi = self.resolution[1]/self.default_resolution[1]
@@ -339,7 +343,7 @@ class Agent:
         self.logger.info('Exited to home succesfully')
         return True
 
-    def scroll(self, scroll_distance=100, direction='down', delay=2, time=1):
+    def scroll(self, scroll_distance=100, direction='down', delay=2, time=11):
         if self.settings['active_window'].get('value') == self.NIKKE_PC_WINDOW:
             time = time*self.NIKKE_PC_SCROLL_CONSTANT
 
@@ -348,6 +352,19 @@ class Agent:
         for _ in range(time):
             gio.scroll(direction_multiplier*scroll_distance)
         gio.delay(delay)
+
+    def drag(self, loc, direction=None, dest_coord=None, delay=1, duration=1):
+        if not loc:
+            return False
+        if not direction and not dest_coord:
+            direction = [-200, 0]
+
+        if direction:
+            gio.click_and_drag(loc, direction=direction, duration=duration)
+        elif dest_coord:
+            gio.click_and_drag(loc, dest_coord=dest_coord, duration=duration)
+        gio.delay(delay)
+        return True
 
     def claim_outpost_reward_wipe(self):
         """
@@ -1089,6 +1106,89 @@ class Agent:
             f'Shopping session ended. Bought in total of {items_shopped} items.')
         self.exit_to_home()
 
+    def paid_shop_buy_bundle(self, bundle_type=None, scrollbar_loc=None):
+        """
+        buy a free bundle given the bundle type
+        """
+        if not bundle_type:
+            self.logger.warning('No bundle type provided')
+            return False
+        self.logger.info(f'Buying free normal {bundle_type} bundle')
+        while not gio.locate_image_and_click(self.image_map[f'home_paid_shop_normal_bundle_{bundle_type}'],
+                                             region=self.location_map['home'].to_bounding(
+        ),
+                confidence=0.99):
+            # if the step is not found, try to drag right to find the image
+            current_im = gio.get_location_image(self.location_map['event'])
+            self.drag(scrollbar_loc, direction=[-200, 0], duration=1)
+            gio.delay(1)
+            same_im_loc = gio.exist_image(
+                current_im, region=self.location_map['home'].to_bounding(), confidence=0.99, timeout=1)
+            # if cannot drag left any further, then return False
+            if same_im_loc:
+                if not gio.locate_image_and_click(self.image_map[f'home_paid_shop_normal_bundle_{bundle_type}'],
+                                                  region=self.location_map['home'].to_bounding(
+                ),
+                        confidence=0.99):
+                    self.logger.info(
+                        f'Could not find normal {bundle_type} bundle ')
+                    return False
+        if not gio.locate_image_and_click(self.image_map[f'home_paid_shop_normal_bundle_free_bundle'],
+                                          region=self.location_map['home'].to_bounding(
+        ),
+                confidence=0.99):
+            self.logger.info(
+                f'Could not find normal {bundle_type} bundle for free')
+            return False
+        else:
+            self.logger.info(
+                f'Sucessfully bought {bundle_type} bundle for free')
+            gio.delay(1)
+
+        gio.locate_image_and_click(self.image_map['home_outpost_express_reward'],
+                                   region=self.location_map['home'].to_bounding(
+        ),
+            timeout=1)
+        return True
+
+    def paid_shop(self):
+        """
+        A daily shopping session to buy free material at the paid shop
+        """
+        self.logger.info('Paid shop session started...')
+
+        # if no shop starting point available exit home
+        if not gio.locate_image_and_click(self.image_map['home_paid_shop'], region=self.location_map['home'].to_bounding()):
+            self.logger.info(
+                'Could not find shop entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_paid_shop'], region=self.location_map['home'].to_bounding()):
+                self.logger.info('Could not find shop entrance, session ended')
+                return False
+
+        item_available = False
+        items_shopped = 0
+        if not gio.locate_image_and_click(self.image_map['home_paid_shop_normal_bundle'], region=self.location_map['home'].to_bounding()):
+            self.logger.info(
+                'Could not find normal bundle entrance, session ended')
+            return False
+        bundle_types = ['daily', 'weekly', 'monthly']
+        scrollbar_loc = gio.locate_image(
+            self.image_map[f'home_paid_shop_normal_bundle_{bundle_types[0]}'], region=self.location_map['home'].to_bounding())
+        if not scrollbar_loc:
+            self.logger.info(
+                f'Could not find normal {bundle_types[0]} bundle, exiting paid shop session')
+            return False
+        for bundle_type in bundle_types:
+            item_available = self.paid_shop_buy_bundle(
+                bundle_type=bundle_type, scrollbar_loc=scrollbar_loc)
+            items_shopped += 1 if item_available else 0
+
+        self.logger.info(
+            f'Paid shop shopping session ended. Bought in total of {items_shopped} items.')
+        self.exit_to_home()
+
     def claim_nikke_rehab_reward_single_session(self):
         self.logger.info('Started single round of rehab reward claiming...')
         if not gio.locate_image_and_click(self.image_map['home_outpost_elevator_rehab_home'],
@@ -1769,18 +1869,27 @@ class Agent:
 
     def traverse_steps(self, steps, timeout=5, delay=1, confidence=0.99):
         for step, step_im in steps.items():
-            if not gio.locate_image_and_click(step_im,
-                                              region=self.location_map['home'].to_bounding(
-                                              ),
-                                              confidence=confidence, loop=True, timeout=timeout):
+            last_im = None
+            while not gio.locate_image_and_click(step_im,
+                                                 region=self.location_map['home'].to_bounding(
+                                                 ),
+                                                 confidence=confidence, loop=True, timeout=timeout):
+
+                # if the step is not found, try to scroll down to find the image
+                current_im = gio.get_location_image(self.location_map['event'])
                 self.scroll()
-                if not gio.locate_image_and_click(step_im,
-                                                  region=self.location_map['home'].to_bounding(
-                                                  ),
-                                                  confidence=confidence, loop=True, timeout=timeout):
-                    self.logger.warning(
-                        f'Could not find {step}')
-                    return False
+                gio.delay(1)
+                same_event_loc = gio.exist_image(
+                    current_im, region=self.location_map['home'].to_bounding(), confidence=0.95, timeout=1)
+                # if cannot scroll down any further, then return False
+                if same_event_loc:
+                    if not gio.locate_image_and_click(step_im,
+                                                      region=self.location_map['home'].to_bounding(
+                                                      ),
+                                                      confidence=confidence, loop=True, timeout=timeout):
+                        self.logger.warning(
+                            f'Could not find {step}')
+                        return False
             gio.delay(delay)
         return True
 
@@ -1795,7 +1904,7 @@ class Agent:
             if not event_name:
                 event_name = "chainsaw_2023_feb"
 
-        # if no dispatch available exit home
+        # if no event available exit home
         if not gio.locate_image_and_click(self.image_map['home_event'],
                                           region=self.location_map['home'].to_bounding(
         ),
@@ -1803,7 +1912,7 @@ class Agent:
             self.logger.info(
                 'Could not find event entrance, exiting home to restart')
             self.exit_to_home()
-            # if still no shop detected, return false
+            # if still no event detected, return false
             if not gio.locate_image_and_click(self.image_map['home_event'],
                                               region=self.location_map['home'].to_bounding(
             ),
