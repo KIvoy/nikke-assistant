@@ -270,6 +270,21 @@ def normal_shop():
         current_status.set(_('Stopped shopping in normal shop.'))
 
 
+def paid_shop():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title=_('Error'),
+            message=_('No active agent found')
+        )
+    else:
+        current_status.set(_('Shopping in paid shop...\npress DEL to stop'))
+        root.update()
+        current_agent.paid_shop()
+        current_status.set(_('Stopped shopping in paid shop.'))
+
+
+
 def claim_nikke_rehab_reward():
     global current_agent
     if not current_agent:
@@ -656,7 +671,7 @@ btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
 btnInfChaos.grid(row=9, column=2)
 
 btnx1 = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
-    'ariel', 12, 'bold'), width=20, text=_("???"), bg="powder blue", command=no_action)
+    'ariel', 12, 'bold'), width=20, text=_("Paid Shop Free"), bg="powder blue", command=paid_shop)
 btnx1.grid(row=9, column=3)
 
 
