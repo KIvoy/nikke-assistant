@@ -1167,7 +1167,7 @@ class Agent:
                 if not gio.locate_image_and_click(self.image_map['home_paid_shop'], region=self.location_map['home'].to_bounding()):
                     self.logger.info('Could not find shop entrance, session ended')
                     break
-            gio.delay(2)
+            gio.delay(3)
             item_available = False
             items_shopped = 0
             if not gio.locate_image_and_click(self.image_map['home_paid_shop_normal_bundle'], region=self.location_map['home'].to_bounding()):
