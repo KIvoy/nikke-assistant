@@ -323,7 +323,8 @@ class GameInteractionIO:
         value = False
         im_type_list = [6, 8, 10, 12]
         model_type_list = ['digitsall_layer',
-                           # 'digits'
+                           'digits',
+                           'engrestrict_best_int'
                            ]
         value_list = []
         for im_type in im_type_list:
