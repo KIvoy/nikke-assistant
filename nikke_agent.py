@@ -295,17 +295,20 @@ class Agent:
     def focus(self):
         return gio.switch_active_application(app_name=self.settings.get('active_window', {}).get('value'), app_loc=self.location_map['home'])
 
-    def resize(self, resolution=None):
+    def resize(self, resolution=None, position=None):
         if not resolution:
             resolution = self.default_real_resolution
         gio.resize_application(app_name=self.settings.get('active_window', {}).get('value'),
                                app_loc=self.location_map['home'],
-                               size=resolution)
+                               size=resolution,
+                               position=position)
         self.select_active_window()
         return True
 
     def resize_to_optimal(self):
-        self.resize(resolution=self.default_real_resolution)
+        position = None
+        # position = [0,0]
+        self.resize(resolution=self.default_real_resolution, position=position)
 
     def is_home(self):
         pass
@@ -1194,47 +1197,57 @@ class Agent:
 
     def claim_nikke_rehab_reward_single_session(self):
         self.logger.info('Started single round of rehab reward claiming...')
-        if not gio.locate_image_and_click(self.image_map['home_outpost_elevator_rehab_home'],
+        rehab_types = ["rehab", "explore"]
+        rehab_locations = [self.image_map[f'home_outpost_elevator_{rehab_type}_home'] for rehab_type in rehab_types] 
+
+        if not gio.locate_image_and_click(rehab_locations,
                                           region=self.location_map['home'].to_bounding(
         ),
                 loop=True, timeout=20, button=None):
             self.logger.info('Could not reach rehab home')
             return False
+        
+        total_reward_count = 0
 
-        r_reward_loc = gio.locate_image(self.image_map['home_outpost_elevator_rehab_complete_r'],
-                                        region=self.location_map['home'].to_bounding(), multi=True)
-        sr_reward_loc = gio.locate_image(self.image_map['home_outpost_elevator_rehab_complete_sr'],
-                                         region=self.location_map['home'].to_bounding(), multi=True)
-        ssr_reward_loc = gio.locate_image(self.image_map['home_outpost_elevator_rehab_complete_ssr'],
-                                          region=self.location_map['home'].to_bounding(), multi=True)
+        for ind, rehab_type in enumerate(rehab_types):
+            if gio.exist_image(rehab_locations[ind], region=self.location_map['home'].to_bounding()):
+                gio.delay(2)
 
-        r_reward_loc = r_reward_loc if r_reward_loc is not None else []
-        sr_reward_loc = sr_reward_loc if sr_reward_loc is not None else []
-        ssr_reward_loc = ssr_reward_loc if ssr_reward_loc is not None else []
+                r_reward_loc = gio.locate_image(self.image_map[f'home_outpost_elevator_{rehab_type}_complete_r'],
+                                                region=self.location_map['home'].to_bounding(), multi=True)
+                sr_reward_loc = gio.locate_image(self.image_map[f'home_outpost_elevator_{rehab_type}_complete_sr'],
+                                                region=self.location_map['home'].to_bounding(), multi=True)
+                ssr_reward_loc = gio.locate_image(self.image_map[f'home_outpost_elevator_{rehab_type}_complete_ssr'],
+                                                region=self.location_map['home'].to_bounding(), multi=True)
 
-        expected_reward_count = 3
-        total_reward_count = len(r_reward_loc) + \
-            len(sr_reward_loc) + len(ssr_reward_loc)
+                r_reward_loc = r_reward_loc if r_reward_loc is not None else []
+                sr_reward_loc = sr_reward_loc if sr_reward_loc is not None else []
+                ssr_reward_loc = ssr_reward_loc if ssr_reward_loc is not None else []
 
-        for r_loc in r_reward_loc:
-            gio.mouse_left_click(r_loc.coord())
-            self.conversation()
-        for r_loc in sr_reward_loc:
-            gio.mouse_left_click(r_loc.coord())
-            self.conversation()
-        for r_loc in ssr_reward_loc:
-            gio.mouse_left_click(r_loc.coord())
-            self.conversation()
+                expected_reward_count = 3
+                total_reward_count = len(r_reward_loc) + \
+                    len(sr_reward_loc) + len(ssr_reward_loc)
 
-        if total_reward_count < expected_reward_count:
-            self.logger.info(
-                f'there are {expected_reward_count - total_reward_count} rewards that needs manual intervention to claim')
-        elif total_reward_count > expected_reward_count:
-            self.logger.warning(
-                f'there are unexpected amount of {total_reward_count} when the maximum expected reward count is {expected_reward_count}')
+                for r_loc in r_reward_loc:
+                    gio.mouse_left_click(r_loc.coord())
+                    self.conversation()
+                for r_loc in sr_reward_loc:
+                    gio.mouse_left_click(r_loc.coord())
+                    self.conversation()
+                for r_loc in ssr_reward_loc:
+                    gio.mouse_left_click(r_loc.coord())
+                    self.conversation()
 
-        self.logger.info(
-            f'Successfully claimed {total_reward_count} rehab rewards')
+                if total_reward_count < expected_reward_count:
+                    self.logger.info(
+                        f'there are {expected_reward_count - total_reward_count} rewards that needs manual intervention to claim')
+                elif total_reward_count > expected_reward_count:
+                    self.logger.warning(
+                        f'there are unexpected amount of {total_reward_count} when the maximum expected reward count is {expected_reward_count}')
+
+                self.logger.info(
+                    f'Successfully claimed {total_reward_count} {rehab_type} rewards')
+                break
 
         return total_reward_count
 
@@ -2101,6 +2114,7 @@ class Agent:
         self.exit_to_home()
         return True
 
+    @gio.timer
     def auto_daily(self, timeout=3):
         self.logger.info(f'starting daily')
         self.logger.info(
