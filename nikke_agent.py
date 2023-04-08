@@ -1198,15 +1198,16 @@ class Agent:
     def claim_nikke_rehab_reward_single_session(self):
         self.logger.info('Started single round of rehab reward claiming...')
         rehab_types = ["rehab", "explore"]
-        rehab_locations = [self.image_map[f'home_outpost_elevator_{rehab_type}_home'] for rehab_type in rehab_types] 
+        rehab_locations = [
+            self.image_map[f'home_outpost_elevator_{rehab_type}_home'] for rehab_type in rehab_types]
 
         if not gio.locate_image_and_click(rehab_locations,
                                           region=self.location_map['home'].to_bounding(
-        ),
-                loop=True, timeout=20, button=None):
+                                          ),
+                                          loop=True, timeout=20, button=None):
             self.logger.info('Could not reach rehab home')
             return False
-        
+
         total_reward_count = 0
 
         for ind, rehab_type in enumerate(rehab_types):
@@ -1216,9 +1217,9 @@ class Agent:
                 r_reward_loc = gio.locate_image(self.image_map[f'home_outpost_elevator_{rehab_type}_complete_r'],
                                                 region=self.location_map['home'].to_bounding(), multi=True)
                 sr_reward_loc = gio.locate_image(self.image_map[f'home_outpost_elevator_{rehab_type}_complete_sr'],
-                                                region=self.location_map['home'].to_bounding(), multi=True)
+                                                 region=self.location_map['home'].to_bounding(), multi=True)
                 ssr_reward_loc = gio.locate_image(self.image_map[f'home_outpost_elevator_{rehab_type}_complete_ssr'],
-                                                region=self.location_map['home'].to_bounding(), multi=True)
+                                                  region=self.location_map['home'].to_bounding(), multi=True)
 
                 r_reward_loc = r_reward_loc if r_reward_loc is not None else []
                 sr_reward_loc = sr_reward_loc if sr_reward_loc is not None else []

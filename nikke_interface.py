@@ -285,7 +285,6 @@ def paid_shop():
         current_status.set(_('Stopped shopping in paid shop.'))
 
 
-
 def claim_nikke_rehab_reward():
     global current_agent
     if not current_agent:

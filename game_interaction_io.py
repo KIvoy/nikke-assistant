@@ -743,7 +743,6 @@ class GameInteractionIO:
             img_array = np.array(screenshot)
             return cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
 
-
     def locate_image_mss(image_path, master_image_path=None, confidence=0.8, region=None, multi=False, multi_threshold=0.3):
         with mss.mss() as sct:
             if not isinstance(image_path, list):
