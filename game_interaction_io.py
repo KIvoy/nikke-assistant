@@ -19,7 +19,8 @@ import sys
 import os
 from difflib import SequenceMatcher
 from helper import read_config
-
+import mss
+from datetime import datetime
 
 if getattr(sys, 'frozen', False):
     tes_path = os.path.join(sys._MEIPASS, r'.\\Tesseract-OCR\\tesseract.exe')
@@ -68,6 +69,26 @@ class GameInteractionIO:
             return wrapper
         return post_action
 
+    def timer(function):
+        def wrapper(self, *args, **kwargs):
+            func_name = function.__name__
+            start_time = time.perf_counter()
+            start_local_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.logger.info(
+                f"The task '{func_name}' started at {start_local_time}")
+            retval = function(self, *args, **kwargs)
+            end_time = time.perf_counter()
+            end_local_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            elapsed_time = end_time - start_time
+            self.logger.info(
+                f"The task '{func_name}' ended at {end_local_time}")
+            hours, remainder = divmod(elapsed_time, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            self.logger.info(
+                f"Timer Summary: The task '{func_name}' took {int(hours)}h {int(minutes)}m {seconds:.2f}s to run.")
+            return retval
+        return wrapper
+
     post_action = post_action_generator(pre_action_delay, post_action_delay)
 
     def to_cv2(image):
@@ -97,7 +118,7 @@ class GameInteractionIO:
             return False
         return True
 
-    def resize_application(app_name="NIKKE", app_loc=None, size=None):
+    def resize_application(app_name="NIKKE", app_loc=None, size=None, position=None):
         app_list = [""]
         if not app_loc:
             app_list = GameInteractionIO.get_available_applications(
@@ -109,6 +130,8 @@ class GameInteractionIO:
         app = [app for app in app_list if app.title == app_name][0]
         if app and size:
             app.resizeTo(*size)
+            if position:
+                app.moveTo(*position)
         else:
             return False
         return True
@@ -707,3 +730,50 @@ class GameInteractionIO:
         else:
             location_im = ImageGrab.grab(bbox=image_location.to_bounding())
         return location_im
+
+    def capture_screenshot(region=None):
+        with mss.mss() as sct:
+            monitor = sct.monitors[0]
+            if region:
+                monitor["left"] += region[0]
+                monitor["top"] += region[1]
+                monitor["width"] = region[2] - region[0]
+                monitor["height"] = region[3] - region[1]
+            screenshot = sct.grab(monitor)
+            img_array = np.array(screenshot)
+            return cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+
+
+    def locate_image_mss(image_path, master_image_path=None, confidence=0.8, region=None, multi=False, multi_threshold=0.3):
+        with mss.mss() as sct:
+            if not isinstance(image_path, list):
+                image_path = [image_path]
+
+            image_locations = []
+            capture = GameInteractionIO.capture_screenshot(region)
+            for im in image_path:
+                template = cv2.cvtColor(np.array(im), cv2.COLOR_RGB2BGR) if isinstance(
+                    im, Image.Image) else cv2.imread(im, cv2.IMREAD_GRAYSCALE)
+                # Grab screenshot and convert to RGB
+                img = np.array(capture)[:, :, ::-1]
+                res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+                loc = np.where(res >= confidence)
+                for pt in zip(*loc[::-1]):
+                    box = LocationBox(
+                        left=pt[0], top=pt[1], width=template.shape[1], height=template.shape[0])
+                    if region:
+                        box.left += region[0]
+                        box.top += region[1]
+                    image_locations.append(box)
+
+            if multi:
+                image_locations = GameInteractionIO._remove_duplicated_location(
+                    image_locations, threshold=multi_threshold)
+
+            if len(image_locations) == 0:
+                return None
+
+            if len(image_locations) == 1:
+                return image_locations[0]
+
+            return image_locations
