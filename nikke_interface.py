@@ -24,6 +24,7 @@ game_config = read_config('NIKKE_ASSISTANT.INI')
 
 # redirect std messages to log files
 log_to_file = (game_config.get('app_settings', 'log_to_file') == 'True')
+print(f'output to file status: {log_to_file}')
 if log_to_file is True:
     sys.stdout = open('app_output.log', 'a')
     sys.stderr = open('app_error.log', 'a')
