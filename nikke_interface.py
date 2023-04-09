@@ -393,6 +393,21 @@ def tower():
         current_status.set(_('Stopped tower.'))
 
 
+def recruit():
+    global current_agent
+    if not current_agent:
+        showinfo(
+            title=_('Error'),
+            message=_('No active agent found')
+        )
+    else:
+        current_status.set(
+            _('Friendship recruiting once...\npress DEL to stop'))
+        root.update()
+        current_agent.recruit()
+        current_status.set(_('Stopped friendship recruiting.'))
+
+
 def select_game_window():
     global current_agent
     if not current_agent:
@@ -702,7 +717,7 @@ btnLoadProfile = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(
 btnLoadProfile.grid(row=10, column=0)
 
 btnLoadSkill = Button(f1, padx=16, pady=8, bd=10, fg="black", font=('ariel', 12, 'bold'),
-                      width=20, text=_("???"), bg="powder blue", command=no_action)
+                      width=20, text=_("Auto Friendship Recruit"), bg="powder blue", command=recruit)
 btnLoadSkill.grid(row=10, column=1)
 
 btnInfChaos = Button(f1, padx=16, pady=8, bd=10, fg="black", font=(

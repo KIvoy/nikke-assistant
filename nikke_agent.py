@@ -223,6 +223,12 @@ class Agent:
         self.location_map['shop'] = app_location + \
             LocationBox(left=86, top=475, width=-94, height=-563)
 
+        self.location_map['next'] = app_location + \
+            LocationBox(left=527, top=508, width=-537, height=-973)
+
+        self.location_map['prev'] = app_location + \
+            LocationBox(left=8, top=506, width=-539, height=-969)
+
         self.resolution = [app_location.width, app_location.height]
         self.res_multi = self.resolution[1]/self.default_resolution[1]
         self.game_active = True
@@ -2250,6 +2256,58 @@ class Agent:
             self.company_tower()
 
         self.logger.info(f"Tower end")
+        self.exit_to_home()
+        return True
+
+    def recruit(self):
+        """
+        recruit friends
+        """
+        self.logger.info('started recruit')
+        if not gio.locate_image_and_click(self.image_map['home_recruit'],
+                                          region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9):
+            self.logger.warning('could not start recruit')
+            self.logger.warning('exiting home to restart')
+            self.exit_to_home()
+            if not gio.locate_image_and_click(self.image_map['home_recruit'],
+                                              region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9):
+                self.logger.warning('could not start recruit')
+                self.logger.warning('session ended')
+                return False
+
+        gio.delay(1)
+
+        while not gio.locate_image(self.image_map['home_recruit_friendship_home'], region=self.location_map['home'].to_bounding(), confidence=0.9):
+            gio.delay(1)
+            gio.mouse_center_click(self.location_map['next'])
+
+        gio.delay(1)
+        if not gio.locate_image_and_click(self.image_map['home_recruit_friendship_recruit_once'],
+                                          region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9):
+            self.logger.warning('could not recruit once')
+            return False
+
+        gio.delay(1)
+
+        if gio.locate_image_and_click(self.image_map['confirm'], region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9):
+            self.logger.warning('Not enough friendship points')
+            return False
+
+        gio.mouse_center_click(self.location_map['home'])
+
+        gio.delay(1)
+
+        if not gio.locate_image_and_click(self.image_map['home_recruit_friendship_skip'], region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9):
+            self.logger.warning('could not recruit once')
+            return False
+
+        gio.delay(1)
+
+        if not gio.locate_image_and_click(self.image_map['home_recruit_friendship_confirm'], region=self.location_map['home'].to_bounding(), loop=True, confidence=0.9):
+            self.logger.warning('could not recruit once')
+            return False
+
+        self.logger.info('recruit ended')
         self.exit_to_home()
         return True
 

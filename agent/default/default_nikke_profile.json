@@ -115,6 +115,20 @@
                 }
             }
         },
+        "recruit": {
+            "name": "recruit",
+            "display_name_en": "Friendship Point Recruit",
+            "display_name_zh": "友情点招募",
+            "priority": 6,
+            "frequency": "daily",
+            "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": false
+                }
+            }
+        },
         "simulation_room": {
             "name": "simulation_room",
             "display_name_en": "Simulation Room",
