@@ -30,7 +30,7 @@ class LocationBox:
         return LocationBox(min(x_coordinates),
                            min(y_coordinates),
                            max(x_coordinates)-min(x_coordinates),
-                           max(y_coordinates) - min(y_coordinates))
+                           max(y_coordinates)-min(y_coordinates))
 
     def to_array(self):
         return [self.left, self.top, self.width, self.height]
@@ -77,6 +77,18 @@ class LocationBox:
                     new_box.top += self.height
 
         return new_box
+
+    def __sub__(self, other):
+        return LocationBox(left=self.left-other.left,
+                           top=self.top-other.top,
+                           width=self.width-other.width,
+                           height=self.height-other.height)
+
+    def __add__(self, other):
+        return LocationBox(left=self.left+other.left,
+                           top=self.top+other.top,
+                           width=self.width+other.width,
+                           height=self.height+other.height)
 
     def __repr__(self):
         return f'LocationBox(left={self.left}, top={self.top}, width={self.width}, height={self.height})'

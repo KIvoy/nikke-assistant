@@ -220,6 +220,9 @@ class Agent:
         self.location_map['event'] = app_location.stretch(
             -285, axis=1).translate(0, 200)
 
+        self.location_map['shop'] = app_location + \
+            LocationBox(left=86, top=475, width=-94, height=-563)
+
         self.resolution = [app_location.width, app_location.height]
         self.res_multi = self.resolution[1]/self.default_resolution[1]
         self.game_active = True
@@ -346,6 +349,7 @@ class Agent:
         self.logger.info('Exited to home succesfully')
         return True
 
+    @gio.action_with_change
     def scroll(self, scroll_distance=100, direction='down', delay=2, time=11):
         if self.settings['active_window'].get('value') == self.NIKKE_PC_WINDOW:
             time = time*self.NIKKE_PC_SCROLL_CONSTANT
@@ -356,6 +360,7 @@ class Agent:
             gio.scroll(direction_multiplier*scroll_distance)
         gio.delay(delay)
 
+    @gio.action_with_change
     def drag(self, loc, direction=None, dest_coord=None, delay=1, duration=1):
         if not loc:
             return False
@@ -1009,11 +1014,144 @@ class Agent:
     def arena_claim_special_arena_points(self):
         pass
 
+    def normal_shop_arena_buy_item_once(self, items_to_purchase=None):
+        """
+        buy items on the current page
+        """
+        if not items_to_purchase:
+            self.logger.info('No item to purchase')
+            return False
+        # define the templates to search for the shop item (e.g., the currency icons)
+        item_templates = [self.image_map['home_shop_arena_currency_icon_1'],
+                          self.image_map['home_shop_arena_currency_icon_2']]
+
+        # find the location of the templates
+        locs = gio.locate_image(
+            item_templates, region=self.location_map['home'].to_bounding(), multi=True)
+
+        # from the locations of the templates found, transform to the location of the item
+        loc_list = [loc.resize(148, 226).translate(-38, -184)
+                    for im_loc in locs for loc in im_loc]
+
+        # get the corresponding image of the item
+        im_list = [gio.get_location_image(loc) for loc in loc_list]
+
+        # for each item, check if it meets the buying criteria
+
+        item_available = [
+            self.image_map[f'home_shop_arena_{item}_cost'] for item in items_to_purchase]
+        items_bought = 0
+        for ind, im in enumerate(im_list):
+            if gio.locate_image(item_available, im):
+                gio.mouse_center_click(loc_list[ind])
+
+                gio.delay(1)
+                gio.locate_image_and_click(self.image_map['confirm'],
+                                           region=self.location_map['home'].to_bounding(), loop=True, timeout=2)
+
+                gio.delay(1)
+                if gio.locate_image_and_click(self.image_map['cancel'],
+                                              region=self.location_map['home'].to_bounding(
+                ),
+                        loop=True, timeout=2):
+                    self.logger.info(
+                        'Could not make purchase due to insufficient fund')
+                elif gio.locate_image_and_click(self.image_map['reward'],
+                                                region=self.location_map['home'].to_bounding(), loop=True, timeout=1):
+                    self.logger.info('Succesfully purchased item')
+                    items_bought += 1
+        self.logger.info(f'Succesfully purchased {items_bought} items at once')
+        return items_bought
+
+    def normal_shop_arena_buy_item(self, items_to_purchase=None):
+        """
+        a normal shop arena buy item session
+        purchase code items until there's nothing to buy and exit
+        """
+
+        available_items = ['any_code_item', 'multi_code_item']
+
+        # check if there's anything to buy from settings
+        # you can set it to buy nothing, and it'll just return
+        if not items_to_purchase:
+            settings = self.routine.get(
+                'normal_shop_arena', {}).get('settings')
+            if settings:
+
+                cart = []
+                for item in available_items:
+                    if settings.get(item, {}).get('value'):
+                        cart.append(item)
+                if len(cart) != 0:
+                    items_to_purchase = cart
+            if not items_to_purchase:
+                self.logger.info(f'No items to purchase')
+                return False
+            else:
+                self.logger.info(
+                    f'items {items_to_purchase} will be purchased')
+
+        new_item_available = True
+        items_bought = 0
+        while new_item_available:
+            items_bought_once = self.normal_shop_arena_buy_item_once(
+                items_to_purchase)
+            if items_bought_once:
+                items_bought += items_bought_once
+            new_item_available = self.scroll(
+                region=self.location_map['shop'], time=5)
+            if new_item_available:
+                self.logger.info('continue to search for new items')
+            else:
+                self.logger.info('no more items to search for')
+
+        self.logger.info(
+            f'Succesfully purchased {items_bought} items without refresh')
+        return items_bought
+
+    def normal_shop_arena(self, items_to_purchase=None):
+        """
+        A daily shopping session to buy free material at the shop
+        Refreshes for free if no free material
+        Stops if no more free materials
+        """
+        self.logger.info('Normal arena shop session started...')
+
+        # if no shop starting point available exit home
+        if not gio.locate_image_and_click(self.image_map['home_shop'], region=self.location_map['home'].to_bounding()):
+            self.logger.info(
+                'Could not find shop entrance, exiting home to restart')
+            self.exit_to_home()
+            # if still no shop detected, return false
+            if not gio.locate_image_and_click(self.image_map['home_shop'], region=self.location_map['home'].to_bounding()):
+                self.logger.info('Could not find shop entrance, session ended')
+                return False
+
+        if not gio.locate_image_and_click(self.image_map['home_shop_arena_home'], region=self.location_map['home'].to_bounding()):
+            self.logger.info(
+                'Could not find arena shop entrance, session ended')
+            return False
+
+        shop_session = True
+        item_available = False
+        items_shopped = 0
+        while shop_session:
+            items_available = self.normal_shop_arena_buy_item(
+                items_to_purchase)
+            if not item_available:
+                shop_session = self.normal_shop_refresh()
+            else:
+                items_shopped += items_available
+
+        self.logger.info(
+            f'Shopping session ended. Bought in total of {items_shopped} items.')
+        self.exit_to_home()
+
     def normal_shop_refresh(self, free=True):
         """
         try to refresh a normal shop
         """
-        self.logger.info('Tryin to refresh normal shop')
+        self.logger.info('Trying to refresh normal shop')
         if not gio.locate_image_and_click(self.image_map['home_shop_refresh'],
                                           region=self.location_map['home'].to_bounding(
         ),
@@ -1123,7 +1261,7 @@ class Agent:
                 confidence=0.99):
             # if the step is not found, try to drag right to find the image
             current_im = gio.get_location_image(self.location_map['event'])
-            self.drag(scrollbar_loc, direction=[-200, 0], duration=1)
+            self.drag(loc=scrollbar_loc, direction=[-200, 0], duration=1)
             gio.delay(1)
             same_im_loc = gio.exist_image(
                 current_im, region=self.location_map['home'].to_bounding(), confidence=0.99, timeout=1)

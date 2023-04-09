@@ -77,6 +77,30 @@
                 }
             }
         },
+        "normal_shop_arena": {
+            "name": "normal_shop",
+            "display_name_en": "Normal Shop Arena",
+            "display_name_zh": "竞技场商店",
+            "priority": 6,
+            "frequency": "daily",
+            "settings": {
+                "auto": {
+                    "display_name_en": "Auto",
+                    "display_name_zh": "自动",
+                    "value": true
+                },
+                "any_code_item": {
+                    "display_name_en": "Industry Code",
+                    "display_name_zh": "任意代码手册",
+                    "value": true
+                },
+                "multi_code_item": {
+                    "display_name_en": "Code Selection Chest",
+                    "display_name_zh": "代码手册宝箱",
+                    "value": true
+                }
+            }
+        },
         "paid_shop": {
             "name": "paid_shop",
             "display_name_en": "Paid Shop Free",

@@ -89,6 +89,20 @@ class GameInteractionIO:
             return retval
         return wrapper
 
+    def action_with_change(function):
+        def wrapper(self, region=None, *args, **kwargs):
+            if not region:
+                region = self.location_map['home']
+            current_im = GameInteractionIO.get_location_image(region)
+            retval = function(self, *args, **kwargs)
+            GameInteractionIO.delay(1)
+            same_im_loc = GameInteractionIO.exist_image(
+                current_im, region=region.to_bounding(), confidence=0.99, timeout=2)
+            if same_im_loc:
+                return False
+            return True
+        return wrapper
+
     post_action = post_action_generator(pre_action_delay, post_action_delay)
 
     def to_cv2(image):
