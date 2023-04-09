@@ -20,6 +20,14 @@ import sys
 from helper import read_config
 
 
+def load_version():
+    version = ""
+    with open("version.txt", "r") as conf:
+        version = conf.readline()  # Assuming root is the root window
+    return version
+
+
+APP_VERSION = load_version()
 game_config = read_config('NIKKE_ASSISTANT.INI')
 
 # redirect std messages to log files
@@ -579,7 +587,7 @@ root = Tk()
 root.iconbitmap("./images/nikke_icon.ico")
 app_size = get_size()
 root.geometry(app_size)
-root.title(_("Nikke Assistant"))
+root.title(_("Nikke Assistant") + APP_VERSION)
 # root.resizable(False, False)
 root.bind("<Configure>", save_size)
 
@@ -595,7 +603,7 @@ f2.pack(side=RIGHT)
 localtime = time.asctime(time.localtime(time.time()))
 # -----------------INFO TOP------------
 lblinfo = Label(Tops, font=('aria', 30, 'bold'),
-                text=_("Nikke Assistant"), fg="steel blue", bd=10, anchor='w')
+                text=_("Nikke Assistant")+APP_VERSION, fg="steel blue", bd=10, anchor='w')
 lblinfo.grid(row=0, column=0)
 
 lblinfo = Label(Tops, font=('aria', 20, ),
