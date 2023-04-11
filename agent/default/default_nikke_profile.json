@@ -78,7 +78,7 @@
             }
         },
         "normal_shop_arena": {
-            "name": "normal_shop",
+            "name": "normal_shop_arena",
             "display_name_en": "Normal Shop Arena",
             "display_name_zh": "竞技场商店",
             "priority": 6,
@@ -125,7 +125,7 @@
                 "auto": {
                     "display_name_en": "Auto",
                     "display_name_zh": "自动",
-                    "value": false
+                    "value": true
                 }
             }
         },
