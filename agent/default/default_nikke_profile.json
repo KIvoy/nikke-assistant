@@ -173,7 +173,7 @@
                 "tribe": {
                     "display_name_en": "Tribe Tower",
                     "display_name_zh": "无限塔",
-                    "value": true
+                    "value": false
                 },
                 "company": {
                     "display_name_en": "Company Tower",
@@ -227,7 +227,7 @@
                     "display_name_zh": "活动名",
                     "tooltip_en": "This is the name of the folder you put all your step screenshots in, should be in images//nikke//home//event_name",
                     "tooltip_zh": "这里是那个放一步一步截图， 从活动界面到活动开打的文件夹名称， 应该在images//nikke//home//event里",
-                    "value": "cherry_blossom_2023_april"
+                    "value": "license_to_kill_2023_april"
                 }
             }
         },
@@ -241,7 +241,7 @@
                 "auto": {
                     "display_name_en": "Auto",
                     "display_name_zh": "自动",
-                    "value": true
+                    "value": false
                 }
             }
         }

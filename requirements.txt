@@ -75,7 +75,7 @@ networkx==3.0
 ninja==1.11.1
 notebook==6.5.3
 notebook_shim==0.2.2
-numpy==1.24.2
+Numpy==1.23.5
 opencv-python==4.7.0.72
 opencv-python-headless==4.5.4.60
 packaging==23.0

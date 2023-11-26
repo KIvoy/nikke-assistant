@@ -348,7 +348,7 @@ class Agent:
                                    region=self.location_map['home'].to_bounding(), loop=True, timeout=3)
 
         item_list = [self.image_map['home_blabla'],
-                     self.image_map['home_friend'], self.image_map['home_union']]
+                     self.image_map['home_friend']]
         self.focus()
         while gio.exist_image(item_list, region=self.location_map['home'].to_bounding()) is False:
             self.back()
