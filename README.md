@@ -84,3 +84,6 @@ If you have any other questions, feel free to go to the [discussion section](htt
     - improvement of existing features
     - reasonable refactoring (god forbid!)
     - anything that'll make the experience better in general
+
+## References
+- Special thanks to https://nikke.gamekee.com/575965.html for the up-to-date information on adivsing.
