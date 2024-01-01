@@ -1175,6 +1175,12 @@ class Agent:
                     loop=True, timeout=3)
                 self.logger.info('The refresh is not free')
                 return False
+            else:
+                if gio.locate_image_and_click(self.image_map['home_shop_gem_description'],
+                                                region=self.location_map['home'].to_bounding(),
+                                                confidence=0.95, loop=True, timeout=2):
+                    self.back()
+
         if not gio.locate_image_and_click(self.image_map['confirm'],
                                           region=self.location_map['home'].to_bounding(
         ),
