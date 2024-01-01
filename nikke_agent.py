@@ -1468,6 +1468,7 @@ class Agent:
         buff_types = ["boss", "choice", "heal", "normal", "upgrade"]
         buff_subtypes = ["attack", "survival", "strategic",
                          "circle", "square", "diamond", "triangle", "mixed"]
+        buff_difficulty = ["normal", "hard"]
         for ind, buff_loc in enumerate(buff_locs):
             info = {}
             info['loc'] = buff_loc
@@ -1484,6 +1485,13 @@ class Agent:
                                                   master_image_path=buff_im)
                 if is_buff_subtype:
                     info['buff_subtype'] = buff_subtype
+                    break
+            
+            for buff_diff in buff_difficulty:
+                is_buff_diff = gio.exist_image(self.image_map[f'home_ark_simulation_room_buff_difficulty_{buff_diff}'],
+                                                  master_image_path=buff_im)
+                if is_buff_diff:
+                    info['buff_difficulty'] = buff_diff
                     break
             buff_info[ind] = info
 
@@ -1502,16 +1510,22 @@ class Agent:
             ind = buff_types_info.index('choice')
             buff_selected = buff_info[ind]
         elif 'normal' in buff_types_info:
-            buff_subtypes_info = [info['buff_subtype']
-                                  for ind, info in buff_info.items()]
-            if 'strategy' in buff_subtypes_info:
-                ind = buff_subtypes_info.index('strategy')
-                buff_selected = buff_info[ind]
-            elif 'survival' in buff_subtypes_info:
-                ind = buff_subtypes_info.index('survival')
+            buff_difficulty_info = [info['buff_difficulty']
+                                    for ind, info in buff_info.items()]
+            if 'normal' in buff_difficulty_info:
+                ind = buff_difficulty_info.index('normal')
                 buff_selected = buff_info[ind]
             else:
-                buff_selected = buff_info[0]
+                buff_subtypes_info = [info['buff_subtype']
+                                    for ind, info in buff_info.items()]
+                if 'strategy' in buff_subtypes_info:
+                    ind = buff_subtypes_info.index('strategy')
+                    buff_selected = buff_info[ind]
+                elif 'survival' in buff_subtypes_info:
+                    ind = buff_subtypes_info.index('survival')
+                    buff_selected = buff_info[ind]
+                else:
+                    buff_selected = buff_info[0]
 
         self.logger.info(f'selected buff {buff_selected}')
 
